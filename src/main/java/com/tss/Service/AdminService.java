@@ -11,8 +11,6 @@ import com.tss.model.Notification;
 import com.tss.model.User.DeliveryPartner;
 import com.tss.model.User.User;
 
-import java.util.List;
-
 import static com.tss.Utils.Constant.inputTaker;
 import static com.tss.Utils.Input.*;
 import static com.tss.Utils.Print.*;
@@ -22,84 +20,12 @@ public class AdminService {
 
     private final UserRepository userRepo;
     private final FoodItemRepository foodRepo;
+    private final SelectorService selector;
 
     public AdminService(UserRepository userRepo){
         this.userRepo = userRepo;
         this.foodRepo = new InMemoryFoodItemRepository();
-    }
-
-    private Category selectFoodCategory(){
-        List<Category> categories = foodRepo.getAllFoodCategories();
-
-        if(categories.isEmpty()){
-            failure("No Category Exists.");
-            return null;
-        }
-
-        Category chosenCategory = null;
-        while(true) {
-            info("Available Food Categories: ");
-            displayAllCategories(categories);
-            info("Enter Category Id: ");
-            int id = takeInt();
-            chosenCategory = foodRepo.getFoodCategoryById(id);
-            if(chosenCategory != null){
-                break;
-            }
-            failure("Invalid Category Id.");
-        }
-
-        return chosenCategory;
-    }
-
-    private FoodItem selectFoodItem(){
-        List<FoodItem> foodItems = foodRepo.getAllFoodItems();
-
-        if(foodItems.isEmpty()){
-            failure("No Food Item Exists.");
-            return null;
-        }
-
-        FoodItem chosenFoodItem = null;
-        while(true) {
-            info("Available Food Items: ");
-            displayAllFoodItems(foodItems);
-            info("Enter Food Item Id: ");
-            int id = takeInt();
-            chosenFoodItem = foodRepo.getFoodItemById(id);
-            if(chosenFoodItem != null){
-                break;
-            }
-            failure("Invalid Food Item Id.");
-        }
-
-        return chosenFoodItem;
-    }
-
-    private DeliveryPartner selectDeliveryPartner(){
-        List<User> users = userRepo.getAllUsersInRole(Role.DELIVERY_PARTNER);
-
-        if(users.isEmpty()){
-            failure("No Delivery Partner Exists.");
-            return null;
-        }
-
-        DeliveryPartner chosenDeliveryPartner = null;
-        while(true) {
-            info("Available Delivery Partners: ");
-            for(User u: users){
-                info(u.toString());
-            }
-            info("Enter Delivery Partner id: ");
-            int id = takeInt();
-            chosenDeliveryPartner = (DeliveryPartner) userRepo.getUserById(id);
-            if(chosenDeliveryPartner != null){
-                break;
-            }
-            failure("Invalid Delivery Partner Id.");
-        }
-
-        return chosenDeliveryPartner;
+        this.selector = new SelectorService(userRepo, foodRepo);
     }
 
     public void addNewFoodItem(){
@@ -109,7 +35,7 @@ public class AdminService {
         info("Enter Food Item Price: ");
         double price = takeDouble();
 
-        Category chosenCategory = selectFoodCategory();
+        Category chosenCategory = selector.selectFoodCategory();
 
         info("Enter Food Item Description: ");
         String description = inputTaker.nextLine();
@@ -143,7 +69,7 @@ public class AdminService {
     }
 
     public void removeFoodItem(){
-        FoodItem item = selectFoodItem();
+        FoodItem item = selector.selectFoodItem();
         if(item == null) return;
 
         foodRepo.removeFoodItem(item.id);
@@ -151,7 +77,7 @@ public class AdminService {
     }
 
     public void removeFoodCategory(){
-        Category category = selectFoodCategory();
+        Category category = selector.selectFoodCategory();
         if(category == null) return;
 
         foodRepo.removeFoodCategory(category.id);
@@ -159,7 +85,7 @@ public class AdminService {
     }
 
     public void toggleFoodItemAvailability(){
-        FoodItem item = selectFoodItem();
+        FoodItem item = selector.selectFoodItem();
         if(item == null) return;
 
         info("Is Food Item Available(y/n): ");
@@ -170,7 +96,7 @@ public class AdminService {
     }
 
     public void approveDeliveryPartner(){
-        DeliveryPartner deliveryPartner = selectDeliveryPartner();
+        DeliveryPartner deliveryPartner = selector.selectDeliveryPartner();
         if(deliveryPartner == null) return;
 
         deliveryPartner.setIsApproved(true);
@@ -179,7 +105,7 @@ public class AdminService {
     }
 
     public void unApproveDeliveryPartner(){
-        DeliveryPartner deliveryPartner = selectDeliveryPartner();
+        DeliveryPartner deliveryPartner = selector.selectDeliveryPartner();
         if(deliveryPartner == null) return;
 
         deliveryPartner.setIsApproved(false);
@@ -252,8 +178,8 @@ public class AdminService {
                     case 11 -> unApproveDeliveryPartner();
                     case 12 -> notifyAllCustomers();
                     case 13 -> notifyAllDeliveryPartners();
-                    case 14 -> displayAllFoodItems(foodRepo.getAllFoodItems());
-                    case 15 -> displayAllCategories(foodRepo.getAllFoodCategories());
+                    case 14 -> selector.displayAllFoodItems(foodRepo.getAllFoodItems());
+                    case 15 -> selector.displayAllCategories(foodRepo.getAllFoodCategories());
                     case 0 -> {
                         success("<--Back");
                         return;
@@ -263,18 +189,6 @@ public class AdminService {
             } catch (Exception e) {
                 exception(e);
             }
-        }
-    }
-
-    private void displayAllCategories(List<Category> categories) {
-        for(Category c: categories){
-            success(c.toString());
-        }
-    }
-
-    private void displayAllFoodItems(List<FoodItem> foodItems) {
-        for(FoodItem f: foodItems){
-            success(f.toString());
         }
     }
 }

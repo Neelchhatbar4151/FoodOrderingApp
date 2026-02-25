@@ -18,7 +18,7 @@ public class Customer extends User{
         super(name, phone, password, Role.CUSTOMER);
         this.orderList = new ArrayList<>();
         this.upiId = "";
-        this.cart = new Order();
+        this.cart = new Order(this);
         this.address = "";
     }
 
@@ -27,7 +27,11 @@ public class Customer extends User{
     }
 
     public void addItemToCart(FoodItem item){
-//        cart.addItem(item);
+        cart.addItem(item);
+    }
+
+    public boolean removeItemFromCart(FoodItem item){
+        return cart.removeItem(item);
     }
 
     public List<Order> getOrderHistory(){
@@ -38,9 +42,9 @@ public class Customer extends User{
 //        return new Order();
 //    }
 
-//    public void cancelOrder(int id){
-//
-//    }
+    public void cancelOrder(int id){
+        cart.moveToNextState(false);
+    }
 
 //    public List<Order> getOnGoingOrders(){
 //        return list of Orders;

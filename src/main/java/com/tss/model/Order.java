@@ -1,6 +1,7 @@
 package com.tss.model;
 
 import com.tss.Datatype.OrderStatus;
+import com.tss.model.User.Customer;
 import com.tss.model.User.DeliveryPartner;
 
 import java.time.LocalDate;
@@ -14,15 +15,14 @@ import static com.tss.Utils.Constant.newOrderId;
 public class Order {
     private final int id;
     private final List<OrderItem> items;
-    private double totalAmount;
     private double discount;
     private String discountDescription;
-    private double finalAmount;
 //    private final PaymentService paymentService;
     private final String transactionId;
     private DeliveryPartner deliveryPartner;
     private OrderStatus status;
     private final LocalDate orderPlacedOn;
+    private final Customer customer;
 
     private final static Map<OrderStatus, OrderStatus> movementGraph = new HashMap<>();
 
@@ -35,18 +35,17 @@ public class Order {
         movementGraph.put(OrderStatus.CANCELLED, null);
     }
 
-    public Order(){
+    public Order(Customer customer){
         this.id = newOrderId++;
         this.items = new ArrayList<>();
-        this.totalAmount = 0.0;
         this.discount = 0.0;
         this.discountDescription = null;
-        this.finalAmount = 0.0;
 //        this.paymentService = null;
         this.transactionId = null;
         this.deliveryPartner = null;
         this.status = OrderStatus.CREATED;
         this.orderPlacedOn = null;
+        this.customer = customer;
     }
 
     public boolean moveToNextState(boolean flag){
@@ -73,8 +72,28 @@ public class Order {
             }
         }
         items.add(new OrderItem(item));
-        totalAmount += item.price;
-        finalAmount = totalAmount - discount;
+    }
+
+    public boolean removeItem(FoodItem item){
+        boolean result = true;
+        OrderItem tempOrderItem = null;
+        for(OrderItem orderItem: items){
+            if(orderItem.foodItem == item){
+                result = orderItem.decreaseQuantity();
+                tempOrderItem = orderItem;
+                break;
+            }
+        }
+
+        if(tempOrderItem == null){
+            return false;
+        }
+
+        if(!result){
+            items.remove(tempOrderItem);
+        }
+
+        return true;
     }
 
     public void assignDeliveryPartner(DeliveryPartner deliveryPartner){
@@ -83,7 +102,6 @@ public class Order {
 
     public void setDiscount(double discount){
         this.discount = discount;
-        finalAmount = totalAmount - discount;
     }
 
     public void setDiscountDescription(String description){
@@ -98,9 +116,9 @@ public class Order {
         return items;
     }
 
-    public double getTotalAmount() {
-        return totalAmount;
-    }
+//    public double getTotalAmount() {
+//        return totalAmount;
+//    }
 
     public double getDiscount() {
         return discount;
@@ -110,9 +128,9 @@ public class Order {
         return discountDescription;
     }
 
-    public double getFinalAmount() {
-        return finalAmount;
-    }
+//    public double getFinalAmount() {
+//        return finalAmount;
+//    }
 
     public String getTransactionId() {
         return transactionId;
@@ -135,10 +153,10 @@ public class Order {
         return "Order{" +
                 "id=" + id +
                 ", items=" + items +
-                ", totalAmount=" + totalAmount +
+//                ", totalAmount=" + totalAmount +
                 ", discount=" + discount +
                 ", discountDescription='" + discountDescription + '\'' +
-                ", finalAmount=" + finalAmount +
+//                ", finalAmount=" + finalAmount +
 //                ", paymentService=" + paymentService +
                 ", transactionId='" + transactionId + '\'' +
                 ", deliveryPartner=" + deliveryPartner +
