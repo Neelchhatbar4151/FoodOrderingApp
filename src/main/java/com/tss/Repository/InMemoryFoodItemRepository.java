@@ -14,9 +14,22 @@ public class InMemoryFoodItemRepository implements FoodItemRepository{
     private final Map<Integer, FoodItem> foodItems;
     private final Map<Integer, Category> foodCategories;
 
+    private void init(){
+        addFoodCategory(new Category("CHINESE"));
+        addFoodCategory(new Category("FASTFOOD"));
+
+        addFoodItem(new FoodItem.Builder("MOMOS", 149.99, foodCategories.get(1)).build());
+        addFoodItem(new FoodItem.Builder("NOODLES", 99.99, foodCategories.get(1)).build());
+
+        addFoodItem(new FoodItem.Builder("BURGER", 119.99, foodCategories.get(2)).build());
+        addFoodItem(new FoodItem.Builder("PIZZA", 199.99, foodCategories.get(2)).build());
+    }
+
     public InMemoryFoodItemRepository(){
         foodItems = new HashMap<>();
         foodCategories = new HashMap<>();
+
+        init();
     }
 
     @Override

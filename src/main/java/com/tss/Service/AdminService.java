@@ -159,6 +159,7 @@ public class AdminService {
                     13. Notify All Delivery Partners
                     14. Display All Food Items
                     15. Display All Food Categories
+                    16. Change Delivery Partner Commission (NS)
                     0.  Go Back
                     ================================================
                     Enter your choice:""");
