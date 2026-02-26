@@ -9,14 +9,7 @@ public class Admin extends User{
 
     @Override
     public String toString() {
-        return "Admin{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", phone='" + phone + '\'' +
-                ", password='" + password + '\'' +
-                ", notifications=" + notifications +
-                ", role=" + role +
-                ", createdOn=" + createdOn +
-                '}';
+        return String.format("%-15s %-15s %-15s %-20s",
+                role, phone, name, createdOn);
     }
 }

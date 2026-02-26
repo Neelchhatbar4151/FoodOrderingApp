@@ -5,11 +5,14 @@ import com.tss.Datatype.Role;
 import com.tss.Repository.FoodItemRepository;
 import com.tss.Repository.InMemoryFoodItemRepository;
 import com.tss.Repository.UserRepository;
+import com.tss.Utils.Display;
 import com.tss.model.Category;
 import com.tss.model.FoodItem;
 import com.tss.model.Notification;
 import com.tss.model.User.DeliveryPartner;
 import com.tss.model.User.User;
+
+import java.util.Collections;
 
 import static com.tss.Utils.Constant.inputTaker;
 import static com.tss.Utils.Input.*;
@@ -118,9 +121,8 @@ public class AdminService {
 
         Notification notification = new Notification(msg);
 
-        for(User u: userRepo.getAllUsersInRole(Role.CUSTOMER)){
-            u.addNotification(notification);
-        }
+        userRepo.getAllUsersInRole(Role.CUSTOMER)
+                .forEach((u) -> u.addNotification(notification));
 
         success("Notification sent to all Customers");
     }
@@ -131,9 +133,8 @@ public class AdminService {
 
         Notification notification = new Notification(msg);
 
-        for(User u: userRepo.getAllUsersInRole(Role.DELIVERY_PARTNER)){
-            u.addNotification(notification);
-        }
+        userRepo.getAllUsersInRole(Role.DELIVERY_PARTNER)
+                .forEach((u) -> u.addNotification(notification));
 
         success("Notification sent to all Delivery Partners");
     }
@@ -144,48 +145,61 @@ public class AdminService {
 
         Notification notification = new Notification("Commission Per Order Changed to " + (commission/100) + " %.");
 
-        for(User u: userRepo.getAllUsersInRole(Role.DELIVERY_PARTNER)){
-            u.addNotification(notification);
-        }
+        userRepo.getAllUsersInRole(Role.DELIVERY_PARTNER)
+                .forEach((u) -> u.addNotification(notification));
 
         success("Notification sent to all Delivery Partners");
     }
 
+
     private void displayAllDeliveryPartners() {
+
         if(userRepo.getAllUsersInRole(Role.DELIVERY_PARTNER).isEmpty()){
             failure("No Delivery Partner Exists.");
             return;
         }
-        for(User u: userRepo.getAllUsersInRole(Role.DELIVERY_PARTNER)){
-            success(((DeliveryPartner)u).toString());
+
+        System.out.printf(
+                "%-15s %-15s %-15s %-12s %-12s %-20s %-12s\n",
+                "Role",
+                "Phone",
+                "Name",
+                "Earnings",
+                "Approved",
+                "Created On",
+                "Status"
+        );
+
+        System.out.println("-----------------------------------------------------------------------------------------------");
+
+        userRepo.getAllUsersInRole(Role.DELIVERY_PARTNER)
+                .forEach(( i)->success(i.toString()));
+    }
+
+    private void displayAllFoodItems(){
+        if(foodRepo.getAllFoodItems().isEmpty()){
+            failure("No Food Item Exists.");
+            return ;
         }
+
+        foodRepo.getAllFoodItems()
+                .forEach((i)->success(i.toString()));
+    }
+
+    private void displayAllFoodCategories(){
+        if(foodRepo.getAllFoodCategories().isEmpty()){
+            failure("No Food Category Exists.");
+            return ;
+        }
+        foodRepo.getAllFoodCategories()
+                .forEach((i) -> success(i.toString()));
     }
 
     public void start(){
         while(true){
             try {
-                info("""
-                    ================== ADMIN MENU ==================
-                    1.  Add New Food Item
-                    2.  Add New Food Category
-                    3.  Remove Food Item
-                    4.  Remove Food Category
-                    5.  Toggle Food Item Availability
-                    6.  Create New Discount (NS)
-                    7.  Create New Flat Discount (NS)
-                    8.  Create New Percentage Discount (NS)
-                    9.  Create New Festival Discount (NS)
-                    10. Approve Delivery Partner
-                    11. Unapprove Delivery Partner
-                    12. Notify All Customers
-                    13. Notify All Delivery Partners
-                    14. Display All Food Items
-                    15. Display All Food Categories
-                    16. Change Delivery Partner Commission
-                    17. Display All Delivery Partners
-                    0.  Go Back
-                    ================================================
-                    Enter your choice:""");
+
+                Display.displayAdminMenu();
 
                 int choice = takeInt();
                 switch (choice) {
@@ -202,8 +216,8 @@ public class AdminService {
                     case 11 -> unApproveDeliveryPartner();
                     case 12 -> notifyAllCustomers();
                     case 13 -> notifyAllDeliveryPartners();
-                    case 14 -> selector.displayAllFoodItems(foodRepo.getAllFoodItems());
-                    case 15 -> selector.displayAllCategories(foodRepo.getAllFoodCategories());
+                    case 14 -> displayAllFoodItems();
+                    case 15 -> displayAllFoodCategories();
                     case 16 -> changeDeliveryPartnerCommission();
                     case 17 -> displayAllDeliveryPartners();
                     case 0 -> {

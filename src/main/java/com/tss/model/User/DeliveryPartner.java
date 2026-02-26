@@ -46,12 +46,14 @@ public class DeliveryPartner extends User {
 
         addNotification(new Notification("Order Completion, Commission Earned: " + (assignedOrder.getFinalAmount() * commissionPercentage) + ", Order: " + assignedOrder));
         assignedOrder.getCustomer().addNotification(new Notification("Order Delivered Successfully, Order: " + assignedOrder));
+        assignedOrder.moveToNextState(true);
 
         totalEarnings += (assignedOrder.getFinalAmount() * commissionPercentage);
         assignedOrder = null;
         status = AvailabilityStatus.AVAILABLE;
 
         OrderService.getInstance().addDeliveryPartner(this);
+
         return true;
     }
 
@@ -85,20 +87,15 @@ public class DeliveryPartner extends User {
 
     @Override
     public String toString() {
-        return "DeliveryPartner{" +
-                "status=" + status +
-                ", assignedOrder=" + assignedOrder +
-                ", totalEarnings=" + totalEarnings +
-                ", isApproved=" + isApproved +
-                ", deliveredOrders=" + deliveredOrders +
-                ", id=" + id +
-                ", name='" + name + '\'' +
-                ", phone='" + phone + '\'' +
-                ", password='" + password + '\'' +
-                ", notifications=" + notifications +
-                ", indexOfNewNotification=" + indexOfNewNotification +
-                ", role=" + role +
-                ", createdOn=" + createdOn +
-                '}';
+        return String.format(
+                "%-25s %-15s %-15s %-12.2f %-20s %-20s %-12s",
+                role,
+                phone,
+                name,
+                totalEarnings,
+                (isApproved?"Approved":"Not Approved"),
+                createdOn,
+                status
+        );
     }
 }

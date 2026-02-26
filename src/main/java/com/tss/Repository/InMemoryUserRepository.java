@@ -16,13 +16,13 @@ public class InMemoryUserRepository implements UserRepository {
     private final Map<Role, Map<String, User>> users;
 
     private void init(){
-        addNewUser(new Admin("Neel", "1234", "ABC"));
+        addNewUser(new Admin("Neel", "9234833295", "ABC"));
 
-        addNewUser(new DeliveryPartner("Rohan", "9876", "XYZ"));
-        addNewUser(new DeliveryPartner("Mohan", "5678", "PQR"));
+        addNewUser(new DeliveryPartner("Rohan", "9214238235", "XYZ"));
+        addNewUser(new DeliveryPartner("Mohan", "6236323533", "PQR"));
 
-        addNewUser(new Customer("Amit", "9123", "ABC"));
-        addNewUser(new Customer("Suresh", "3456", "DEF"));
+        addNewUser(new Customer("Amit", "9123352655", "ABC"));
+        addNewUser(new Customer("Suresh", "8241532353", "DEF"));
     }
 
     public InMemoryUserRepository(){

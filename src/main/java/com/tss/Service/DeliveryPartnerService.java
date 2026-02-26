@@ -1,6 +1,7 @@
 package com.tss.Service;
 
 
+import com.tss.Utils.Display;
 import com.tss.model.CurrentUser;
 import com.tss.model.Notification;
 import com.tss.model.Order;
@@ -70,17 +71,7 @@ public class DeliveryPartnerService {
     public void start(){
         while(true){
             try {
-                info("""
-                    ================== CUSTOMER MENU ==================
-                    1. Set Availability Status (NS)
-                    2. Complete Order Delivery
-                    3. Get Total Earnings
-                    4. Show Orders Delivered
-                    5. Show New Notifications
-                    6. Show All Notifications
-                    0.  Go Back
-                    ================================================
-                    Enter your choice:""");
+                Display.displayDeliveryPartnerMenu();
 
                 int choice = takeInt();
                 switch (choice) {

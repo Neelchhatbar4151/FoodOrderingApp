@@ -4,11 +4,13 @@ import com.tss.Datatype.Role;
 import com.tss.Repository.FoodItemRepository;
 import com.tss.Repository.InMemoryFoodItemRepository;
 import com.tss.Repository.UserRepository;
+import com.tss.Utils.Display;
 import com.tss.model.Category;
 import com.tss.model.FoodItem;
 import com.tss.model.User.DeliveryPartner;
 import com.tss.model.User.User;
 
+import java.util.Collections;
 import java.util.List;
 
 import static com.tss.Utils.Input.takeInt;
@@ -36,7 +38,7 @@ public class SelectorService {
         Category chosenCategory = null;
         while(true) {
             info("Available Food Categories: ");
-            displayAllCategories(categories);
+            categories.forEach((i) -> success(i.toString()));
             info("Enter Category Id: ");
             int id = takeInt();
             chosenCategory = foodRepo.getFoodCategoryById(id);
@@ -60,7 +62,7 @@ public class SelectorService {
         FoodItem chosenFoodItem = null;
         while(true) {
             info("Available Food Items: ");
-            displayAllFoodItems(foodItems);
+            foodItems.forEach((i) -> success(i.toString()));
             info("Enter Food Item Id: ");
             int id = takeInt();
             chosenFoodItem = foodRepo.getFoodItemById(id);
@@ -84,9 +86,7 @@ public class SelectorService {
         DeliveryPartner chosenDeliveryPartner = null;
         while(true) {
             info("Available Delivery Partners: ");
-            for(User u: users){
-                info(u.toString());
-            }
+            users.forEach((i) -> success(i.toString()));
             info("Enter Delivery Partner id: ");
             int id = takeInt();
             User user = userRepo.getUserById(id);
@@ -98,17 +98,5 @@ public class SelectorService {
         }
 
         return chosenDeliveryPartner;
-    }
-
-    public void displayAllCategories(List<Category> categories) {
-        for(Category c: categories){
-            success(c.toString());
-        }
-    }
-
-    public void displayAllFoodItems(List<FoodItem> foodItems) {
-        for(FoodItem f: foodItems){
-            success(f.toString());
-        }
     }
 }

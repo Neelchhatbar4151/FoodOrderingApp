@@ -10,12 +10,15 @@ import java.util.Queue;
 
 //Singleton
 public class OrderService {
-    Queue<Order> orderQueue;
-    Queue<DeliveryPartner> deliveryPartnerQueue;
+
+    private final Queue<Order> orderQueue;
+    private final Queue<DeliveryPartner> deliveryPartnerQueue;
 
     private OrderService(){
+
         this.deliveryPartnerQueue = new LinkedList<>();
         this.orderQueue = new LinkedList<>();
+
     }
 
     public void checkQueue(){

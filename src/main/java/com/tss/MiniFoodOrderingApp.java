@@ -7,8 +7,12 @@ import com.tss.Service.AdminService;
 import com.tss.Service.CustomerService;
 import com.tss.Service.DeliveryPartnerService;
 import com.tss.Service.OrderService;
+import com.tss.Utils.Display;
 import com.tss.model.CurrentUser;
 import com.tss.model.User.*;
+
+import java.util.NoSuchElementException;
+import java.util.Scanner;
 
 import static com.tss.Utils.Constant.inputTaker;
 import static com.tss.Utils.Input.*;
@@ -76,7 +80,7 @@ public class MiniFoodOrderingApp {
         }
         else{
             success("Correct Credentials.");
-            success("You're Logged in as " + user.getName());
+            success("You're Logged in as " + user.getName() + " [ " + role + " ]");
 
             //Setting up global access to current user
             CurrentUser.getInstance().setUser(user);
@@ -89,18 +93,7 @@ public class MiniFoodOrderingApp {
     public void start(){
         while(true){
             try {
-                info("""
-                        =========== MAIN MENU ===========
-                        Registration:
-                            1. Customer
-                            2. Delivery Partner
-                        Login:
-                            3. Admin
-                            4. Customer
-                            5. Delivery Partner
-                        0. Close App
-                        =================================
-                        Enter your choice:""");
+                Display.displayMainMenu();
 
                 int choice = takeInt();
                 switch (choice) {
@@ -118,7 +111,12 @@ public class MiniFoodOrderingApp {
 
                 //Clearing current user session
                 CurrentUser.getInstance().setUser(null);
-            } catch (Exception e) {
+            }
+            catch(NoSuchElementException e){
+                failure("File Input has been ended, continuing with user input...");
+                inputTaker = new Scanner(System.in);
+            }
+            catch (Exception e) {
                 exception(e);
             }
         }

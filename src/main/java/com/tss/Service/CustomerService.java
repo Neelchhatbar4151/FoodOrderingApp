@@ -3,9 +3,13 @@ package com.tss.Service;
 
 import com.tss.Datatype.AvailabilityStatus;
 import com.tss.Datatype.OrderStatus;
+import com.tss.Exception.CartContainsUnavailableItemsException;
+import com.tss.Exception.EmptyCartException;
+import com.tss.Exception.ItemNotAvailableException;
 import com.tss.Repository.FoodItemRepository;
 import com.tss.Repository.InMemoryFoodItemRepository;
 import com.tss.Repository.UserRepository;
+import com.tss.Utils.Display;
 import com.tss.model.*;
 import com.tss.model.User.Customer;
 
@@ -32,8 +36,7 @@ public class CustomerService {
     private void addItemToCart(){
         FoodItem item = selector.selectFoodItem();
         if(item.getAvailability() == AvailabilityStatus.NOT_AVAILABLE){
-            failure("Chosen Item is Currently Not Available.");
-            return;
+            throw new ItemNotAvailableException();
         }
         customer.addItemToCart(item);
     }
@@ -55,16 +58,17 @@ public class CustomerService {
         Order cart = customer.getCart();
 
         if(cart.getTotalAmount() == 0){
-            failure("Cart is Empty.");
-            return;
+            throw new EmptyCartException();
         }
 
-        for(OrderItem item: cart.getItems()){
-            if(item.foodItem.getAvailability() == AvailabilityStatus.NOT_AVAILABLE){
-                failure("Cart Contains Some Unavailable Items, Please Remove them to place order..");
-                return;
-            }
-        }
+        cart.getItems()
+                .forEach((item)-> {
+
+                    if( item.foodItem.getAvailability() == AvailabilityStatus.NOT_AVAILABLE ) {
+                        throw new CartContainsUnavailableItemsException();
+                    }
+
+                });
 
         customer.setNewCart();
         //Created -> Confirmed
@@ -90,12 +94,7 @@ public class CustomerService {
         success(order.toString());
 
         while(true){
-            info("""
-                    Choose Payment Mode:
-                    1. UPI
-                    2. Cash On Delivery
-                    3. Cancel Order
-                    Enter:""");
+            Display.displayPaymentMenu();
 
             int choice = takeInt();
             switch(choice){
@@ -127,9 +126,7 @@ public class CustomerService {
         if(orderHistory.isEmpty()){
             failure("No Order History.");
         }
-        for(Order o: orderHistory){
-            success(o.toString());
-        }
+        orderHistory.forEach((o) -> success(o.toString()));
     }
 
     public void showNewNotifications(){
@@ -137,9 +134,7 @@ public class CustomerService {
         if(notifications.isEmpty()){
             failure("No Notification History.");
         }
-        for(Notification n: notifications){
-            success(n.toString());
-        }
+        notifications.forEach((n) -> success(n.toString()));
     }
 
     public void showAllNotifications(){
@@ -149,9 +144,7 @@ public class CustomerService {
         if(notifications.isEmpty()){
             failure("No Notification History.");
         }
-        for(Notification n: notifications){
-            success(n.toString());
-        }
+        notifications.forEach((n) -> success(n.toString()));
     }
 
     private void showOnGoingOrders(){
@@ -159,28 +152,13 @@ public class CustomerService {
         if(orderHistory.isEmpty()){
             failure("No On Going Order.");
         }
-        for(Order o: orderHistory){
-            success(o.toString());
-        }
+        orderHistory.forEach((o) -> success(o.toString()));
     }
 
     public void start(){
         while(true){
             try {
-                info("""
-                    ================== CUSTOMER MENU ==================
-                    1. Add Food Item To Cart
-                    2. Remove Food Item From Cart
-                    3. Place Order
-                    4. Show Cart
-                    5. Cancel Order (NS)
-                    6. Show Order History
-                    7. Show New Notifications
-                    8. Show All Notifications
-                    9. Show On Going Orders
-                    0.  Go Back
-                    ================================================
-                    Enter your choice:""");
+                Display.displayCustomerMenu();
 
                 int choice = takeInt();
                 switch (choice) {

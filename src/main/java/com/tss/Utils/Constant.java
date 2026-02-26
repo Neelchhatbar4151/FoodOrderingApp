@@ -15,7 +15,7 @@ public class Constant {
         try {
             File file = new File("input.txt");
             inputTaker = new Scanner(file);
-            inputTaker = new Scanner(System.in);
+//            inputTaker = new Scanner(System.in);
         } catch (Exception f) {
             System.out.println("File Not Found.");
         }

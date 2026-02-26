@@ -53,17 +53,12 @@ public class Customer extends User{
     @Override
     public String toString() {
         return "Customer{" +
-                "orderList=" + orderList +
                 ", upiId='" + upiId + '\'' +
-                ", cart=" + cart +
                 ", address='" + address + '\'' +
-                ", id=" + id +
                 ", name='" + name + '\'' +
                 ", phone='" + phone + '\'' +
-                ", notifications=" + notifications +
                 ", role=" + role +
                 ", createdOn=" + createdOn +
-                ", indexOfNewNotification=" + indexOfNewNotification +
                 '}';
     }
 
