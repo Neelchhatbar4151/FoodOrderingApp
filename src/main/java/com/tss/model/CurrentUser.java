@@ -19,10 +19,6 @@ public class CurrentUser {
         return user;
     }
 
-    public boolean checkRole(Role role){
-        return (role == user.role);
-    }
-
     private static class Initiator{
         private static final CurrentUser instance = new CurrentUser();
     }

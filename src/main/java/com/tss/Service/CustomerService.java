@@ -8,6 +8,7 @@ import com.tss.Exception.EmptyCartException;
 import com.tss.Exception.ItemNotAvailableException;
 import com.tss.Repository.FoodItemRepository;
 import com.tss.Repository.InMemoryFoodItemRepository;
+import com.tss.Repository.InMemoryUserRepository;
 import com.tss.Repository.UserRepository;
 import com.tss.Utils.Display;
 import com.tss.model.*;
@@ -26,11 +27,11 @@ public class CustomerService {
     private final FoodItemRepository foodRepo;
     private final SelectorService selector;
 
-    public CustomerService(UserRepository userRepo){
+    public CustomerService(){
         customer = (Customer) CurrentUser.getInstance().getUser();
-        this.foodRepo = new InMemoryFoodItemRepository();
-        this.userRepo = userRepo;
-        this.selector = new SelectorService(userRepo, foodRepo);
+        this.foodRepo = InMemoryFoodItemRepository.getInstance();
+        this.userRepo = InMemoryUserRepository.getInstance();
+        this.selector = new SelectorService();
     }
 
     private void addItemToCart(){

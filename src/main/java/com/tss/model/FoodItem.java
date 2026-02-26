@@ -24,17 +24,6 @@ public class FoodItem {
         this.calories = builder.calories;
     }
 
-    public FoodItem(FoodItem other) {
-        this.id = other.id;
-        this.name = other.name;
-        this.description = other.description;
-        this.price = other.price;
-        this.category = other.category;
-        this.availability = other.availability;
-        this.preparationTime = other.preparationTime;
-        this.calories = other.calories;
-    }
-
     public void setAvailability(AvailabilityStatus availability){
         this.availability = availability;
     }
@@ -56,12 +45,12 @@ public class FoodItem {
         return "FoodItem{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
                 ", price=" + price +
                 ", category=" + category +
                 ", availability=" + availability +
                 ", preparationTime=" + preparationTime +
                 ", calories=" + calories +
+                ", description='" + description + '\'' +
                 '}';
     }
 

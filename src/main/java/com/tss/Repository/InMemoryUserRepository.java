@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+//Singleton
 public class InMemoryUserRepository implements UserRepository {
 
     private final Map<Role, Map<String, User>> users;
@@ -25,7 +26,7 @@ public class InMemoryUserRepository implements UserRepository {
         addNewUser(new Customer("Suresh", "8241532353", "DEF"));
     }
 
-    public InMemoryUserRepository(){
+    private InMemoryUserRepository(){
         this.users = new HashMap<>();
 
         init();
@@ -70,5 +71,13 @@ public class InMemoryUserRepository implements UserRepository {
         roleSpecificUsers.put(user.getPhone(), user);
         users.put(user.role, roleSpecificUsers);
         return true;
+    }
+
+    public static class Initiator{
+        private static final InMemoryUserRepository instance = new InMemoryUserRepository();
+    }
+
+    public static InMemoryUserRepository getInstance(){
+        return Initiator.instance;
     }
 }

@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+//Singleton
 public class InMemoryFoodItemRepository implements FoodItemRepository{
 
     private final Map<Integer, FoodItem> foodItems;
@@ -25,7 +26,7 @@ public class InMemoryFoodItemRepository implements FoodItemRepository{
         addFoodItem(new FoodItem.Builder("PIZZA", 199.99, foodCategories.get(2)).build());
     }
 
-    public InMemoryFoodItemRepository(){
+    private InMemoryFoodItemRepository(){
         foodItems = new HashMap<>();
         foodCategories = new HashMap<>();
 
@@ -87,5 +88,13 @@ public class InMemoryFoodItemRepository implements FoodItemRepository{
     @Override
     public List<Category> getAllFoodCategories() {
         return new ArrayList<>(foodCategories.values());
+    }
+
+    public static class Initiator{
+        private static final InMemoryFoodItemRepository instance = new InMemoryFoodItemRepository();
+    }
+
+    public static InMemoryFoodItemRepository getInstance(){
+        return Initiator.instance;
     }
 }

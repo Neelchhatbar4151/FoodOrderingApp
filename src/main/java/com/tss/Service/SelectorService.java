@@ -3,6 +3,7 @@ package com.tss.Service;
 import com.tss.Datatype.Role;
 import com.tss.Repository.FoodItemRepository;
 import com.tss.Repository.InMemoryFoodItemRepository;
+import com.tss.Repository.InMemoryUserRepository;
 import com.tss.Repository.UserRepository;
 import com.tss.Utils.Display;
 import com.tss.model.Category;
@@ -22,9 +23,9 @@ public class SelectorService {
     private final UserRepository userRepo;
     private final FoodItemRepository foodRepo;
 
-    public SelectorService(UserRepository userRepo, FoodItemRepository foodRepo){
-        this.userRepo = userRepo;
-        this.foodRepo = foodRepo;
+    public SelectorService(){
+        this.userRepo = InMemoryUserRepository.getInstance();
+        this.foodRepo = InMemoryFoodItemRepository.getInstance();
     }
 
     public Category selectFoodCategory(){

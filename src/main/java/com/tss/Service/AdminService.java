@@ -4,6 +4,7 @@ import com.tss.Datatype.AvailabilityStatus;
 import com.tss.Datatype.Role;
 import com.tss.Repository.FoodItemRepository;
 import com.tss.Repository.InMemoryFoodItemRepository;
+import com.tss.Repository.InMemoryUserRepository;
 import com.tss.Repository.UserRepository;
 import com.tss.Utils.Display;
 import com.tss.model.Category;
@@ -25,10 +26,10 @@ public class AdminService {
     private final FoodItemRepository foodRepo;
     private final SelectorService selector;
 
-    public AdminService(UserRepository userRepo){
-        this.userRepo = userRepo;
-        this.foodRepo = new InMemoryFoodItemRepository();
-        this.selector = new SelectorService(userRepo, foodRepo);
+    public AdminService(){
+        this.userRepo = InMemoryUserRepository.getInstance();
+        this.foodRepo = InMemoryFoodItemRepository.getInstance();
+        this.selector = new SelectorService();
     }
 
     public void addNewFoodItem(){

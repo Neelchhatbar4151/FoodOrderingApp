@@ -1,12 +1,12 @@
 package com.tss;
 
 import com.tss.Datatype.Role;
+import com.tss.Exception.AuthenticationFailedException;
 import com.tss.Repository.InMemoryUserRepository;
 import com.tss.Repository.UserRepository;
 import com.tss.Service.AdminService;
 import com.tss.Service.CustomerService;
 import com.tss.Service.DeliveryPartnerService;
-import com.tss.Service.OrderService;
 import com.tss.Utils.Display;
 import com.tss.model.CurrentUser;
 import com.tss.model.User.*;
@@ -22,7 +22,7 @@ public class MiniFoodOrderingApp {
     private final UserRepository userRepo;
 
     public MiniFoodOrderingApp(){
-        this.userRepo = new InMemoryUserRepository();
+        this.userRepo = InMemoryUserRepository.getInstance();
     }
 
     public void registerUser(Role role){
@@ -35,36 +35,15 @@ public class MiniFoodOrderingApp {
         info("Enter a Password: ");
         String password = inputTaker.nextLine();
 
-        User user;
-
-        if(role == Role.CUSTOMER){
-            user = new Customer(name, phone, password);
-        }
-        else if(role == Role.ADMIN){
-            user = new Admin(name, phone, password);
-        }
-        else{
-            user = new DeliveryPartner(name, phone, password);
-        }
-
-        if(!userRepo.addNewUser(user)){
-            failure(role + " With Same Phone Number Already Exists.");
-            return;
+        if(!userRepo.addNewUser(role.createUser(name, phone, password))){
+            throw new IllegalArgumentException(role + " With Same Phone Number Already Exists.");
         }
 
         success(role.name() + " Registered Successfully !");
     }
 
     private void initiateService(Role role){
-        if(role == Role.CUSTOMER){
-            new CustomerService(userRepo).start();
-        }
-        else if(role == Role.ADMIN){
-            new AdminService(userRepo).start();
-        }
-        else{
-            new DeliveryPartnerService().start();
-        }
+        role.startService();
     }
 
     public void loginUser(Role role){
@@ -76,7 +55,7 @@ public class MiniFoodOrderingApp {
 
         User user = userRepo.getUser(phone, password, role);
         if(user == null){
-            failure("Incorrect Credentials.");
+            throw new AuthenticationFailedException();
         }
         else{
             success("Correct Credentials.");
@@ -93,24 +72,7 @@ public class MiniFoodOrderingApp {
     public void start(){
         while(true){
             try {
-                Display.displayMainMenu();
-
-                int choice = takeInt();
-                switch (choice) {
-                    case 1 -> registerUser(Role.CUSTOMER);
-                    case 2 -> registerUser(Role.DELIVERY_PARTNER);
-                    case 3 -> loginUser(Role.ADMIN);
-                    case 4 -> loginUser(Role.CUSTOMER);
-                    case 5 -> loginUser(Role.DELIVERY_PARTNER);
-                    case 0 -> {
-                        failure("X-- Closing App");
-                        return;
-                    }
-                    default -> failure("Invalid Option Selected.");
-                }
-
-                //Clearing current user session
-                CurrentUser.getInstance().setUser(null);
+                if ( !process() ) return;
             }
             catch(NoSuchElementException e){
                 failure("File Input has been ended, continuing with user input...");
@@ -120,5 +82,27 @@ public class MiniFoodOrderingApp {
                 exception(e);
             }
         }
+    }
+
+    public boolean process(){
+        Display.displayMainMenu();
+
+        int choice = takeInt();
+        switch (choice) {
+            case 1 -> registerUser(Role.CUSTOMER);
+            case 2 -> registerUser(Role.DELIVERY_PARTNER);
+            case 3 -> loginUser(Role.ADMIN);
+            case 4 -> loginUser(Role.CUSTOMER);
+            case 5 -> loginUser(Role.DELIVERY_PARTNER);
+            case 0 -> {
+                failure("X-- Closing App");
+                return false;
+            }
+            default -> throw new IllegalArgumentException("Invalid Option Selected.");
+        }
+
+        //Clearing current user session
+        CurrentUser.getInstance().setUser(null);
+        return true;
     }
 }
