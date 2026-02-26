@@ -5,7 +5,8 @@ import com.tss.Repository.InMemoryUserRepository;
 import com.tss.Repository.UserRepository;
 import com.tss.Service.AdminService;
 import com.tss.Service.CustomerService;
-import com.tss.Service.DeliveryService;
+import com.tss.Service.DeliveryPartnerService;
+import com.tss.Service.OrderService;
 import com.tss.model.CurrentUser;
 import com.tss.model.User.*;
 
@@ -55,7 +56,7 @@ public class MiniFoodOrderingApp {
             new AdminService(userRepo).start();
         }
         else{
-            new DeliveryService().start();
+            new DeliveryPartnerService().start();
         }
     }
 

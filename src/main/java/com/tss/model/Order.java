@@ -17,7 +17,7 @@ public class Order {
     private final List<OrderItem> items;
     private double discount;
     private String discountDescription;
-//    private final PaymentService paymentService;
+    private String paymentService;
     private final String transactionId;
     private DeliveryPartner deliveryPartner;
     private OrderStatus status;
@@ -29,7 +29,8 @@ public class Order {
     static {
         movementGraph.put(OrderStatus.CREATED, OrderStatus.CONFIRMED);
         movementGraph.put(OrderStatus.CONFIRMED, OrderStatus.PREPARING);
-        movementGraph.put(OrderStatus.PREPARING, OrderStatus.OUT_FOR_DELIVERY);
+        movementGraph.put(OrderStatus.PREPARING, OrderStatus.WAITING_FOR_DELIVERY_PARTNER);
+        movementGraph.put(OrderStatus.WAITING_FOR_DELIVERY_PARTNER, OrderStatus.OUT_FOR_DELIVERY);
         movementGraph.put(OrderStatus.OUT_FOR_DELIVERY, OrderStatus.DELIVERED);
         movementGraph.put(OrderStatus.DELIVERED, null);
         movementGraph.put(OrderStatus.CANCELLED, null);
@@ -40,7 +41,7 @@ public class Order {
         this.items = new ArrayList<>();
         this.discount = 0.0;
         this.discountDescription = null;
-//        this.paymentService = null;
+        this.paymentService = null;
         this.transactionId = null;
         this.deliveryPartner = null;
         this.status = OrderStatus.CREATED;
@@ -53,7 +54,15 @@ public class Order {
             status = OrderStatus.CANCELLED;
         }
 
-        return (status = movementGraph.get(status)) != null;
+        OrderStatus tempStatus = movementGraph.get(status);
+
+        if(tempStatus == null){
+            return false;
+        }
+
+        status = tempStatus;
+
+        return true;
     }
 
     public List<OrderItem> getItemsListCopy(){
@@ -100,14 +109,6 @@ public class Order {
         this.deliveryPartner = deliveryPartner;
     }
 
-    public void setDiscount(double discount){
-        this.discount = discount;
-    }
-
-    public void setDiscountDescription(String description){
-        this.discountDescription = discountDescription;
-    }
-
     public int getId() {
         return id;
     }
@@ -116,21 +117,21 @@ public class Order {
         return items;
     }
 
-//    public double getTotalAmount() {
-//        return totalAmount;
-//    }
-
-    public double getDiscount() {
-        return discount;
+    public double getTotalAmount() {
+        double total = 0.0;
+        for(OrderItem item : items){
+            total += item.getSubTotal();
+        }
+        return total;
     }
 
-    public String getDiscountDescription() {
-        return discountDescription;
+    public double getFinalAmount() {
+        if(getTotalAmount() > 500){
+            discountDescription = "Flat 50 off on orders greater than 500.";
+            discount = 50;
+        }
+        return getTotalAmount() - discount;
     }
-
-//    public double getFinalAmount() {
-//        return finalAmount;
-//    }
 
     public String getTransactionId() {
         return transactionId;
@@ -148,15 +149,19 @@ public class Order {
         return orderPlacedOn;
     }
 
+    public void setPaymentService(String service){
+        paymentService = service;
+    }
+
     @Override
     public String toString() {
         return "Order{" +
                 "id=" + id +
                 ", items=" + items +
-//                ", totalAmount=" + totalAmount +
+                ", totalAmount=" + getTotalAmount() +
                 ", discount=" + discount +
                 ", discountDescription='" + discountDescription + '\'' +
-//                ", finalAmount=" + finalAmount +
+                ", finalAmount=" + getFinalAmount() +
 //                ", paymentService=" + paymentService +
                 ", transactionId='" + transactionId + '\'' +
                 ", deliveryPartner=" + deliveryPartner +

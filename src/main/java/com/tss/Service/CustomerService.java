@@ -1,15 +1,20 @@
 package com.tss.Service;
 
 
+import com.tss.Datatype.OrderStatus;
 import com.tss.Repository.FoodItemRepository;
 import com.tss.Repository.InMemoryFoodItemRepository;
 import com.tss.Repository.UserRepository;
 import com.tss.model.CurrentUser;
 import com.tss.model.FoodItem;
+import com.tss.model.Notification;
+import com.tss.model.Order;
 import com.tss.model.User.Customer;
 
 import java.nio.channels.Selector;
+import java.util.List;
 
+import static com.tss.Utils.Input.takeInt;
 import static com.tss.Utils.Print.*;
 
 public class CustomerService {
@@ -45,20 +50,132 @@ public class CustomerService {
     }
 
     private void placeOrder(){
-        customer.getCart().moveToNextState(true);
+        Order cart = customer.getCart();
 
-        customer.getCart().moveToNextState(true);
+        customer.setNewCart();
+        //Created -> Confirmed
+        cart.moveToNextState(true);
 
-        customer.getCart().moveToNextState(true);
+        performPayment(cart);
+
+        if(cart.getStatus() == OrderStatus.CANCELLED){
+            return ;
+        }
+
+        //No Preparation Time For Now
+        //Preparing -> Waiting
+        cart.moveToNextState(true);
+
+        OrderService.getInstance().addOrder(cart);
+        success("Your Order is Now in Queue...");
+        success("You'll get notified once a delivery partner assigns to your order.");
+    }
+
+    private void performPayment(Order order){
+        info("Order Invoice");
+        success(order.toString());
+
+        while(true){
+            info("""
+                    Choose Payment Mode:
+                    1. UPI
+                    2. Cash On Delivery
+                    3. Cancel Order
+                    Enter:""");
+
+            int choice = takeInt();
+            switch(choice){
+                case 1 -> success("Paid Using UPI");
+                case 2 -> success("Delivery Partner will take payment upon Delivery.");
+                case 3 -> {
+                    //CANCELLED
+                    order.moveToNextState(false);
+                    success("Order Successfully Cancelled !");
+                }
+                default -> {
+                    failure("Enter Valid Choice.");
+                    continue;
+                }
+            }
+            break;
+        }
+
+        //Confirmed -> Preparing
+        order.moveToNextState(true);
     }
 
 //    private void cancelOrder(){
 //        customer.
 //    }
 
+    public void showOrderHistory(){
+        List<Order> orderHistory = customer.getOrderHistory();
+        if(orderHistory.isEmpty()){
+            failure("No Order History.");
+        }
+        for(Order o: orderHistory){
+            success(o.toString());
+        }
+    }
 
+    public void showNewNotifications(){
+        List<Notification> notifications = customer.getNewNotifications();
+        if(notifications.isEmpty()){
+            failure("No Notification History.");
+        }
+        for(Notification n: notifications){
+            success(n.toString());
+        }
+    }
+
+    public void showAllNotifications(){
+        List<Notification> notifications = customer.getOldNotifications();
+        notifications.addAll(customer.getNewNotifications());
+
+        if(notifications.isEmpty()){
+            failure("No Notification History.");
+        }
+        for(Notification n: notifications){
+            success(n.toString());
+        }
+    }
 
     public void start(){
+        while(true){
+            try {
+                info("""
+                    ================== CUSTOMER MENU ==================
+                    1. Add Food Item To Cart
+                    2. Remove Food Item From Cart
+                    3. Place Cart
+                    4. Show Cart
+                    5. Cancel Order (NS)
+                    6. Show Order History
+                    7. Show New Notifications
+                    8. Show All Notifications
+                    0.  Go Back
+                    ================================================
+                    Enter your choice:""");
 
+                int choice = takeInt();
+                switch (choice) {
+                    case 1 -> addItemToCart();
+                    case 2 -> removeItemFromCart();
+                    case 3 -> placeOrder();
+                    case 4 -> success(customer.getCart().toString());
+                    case 5 -> failure("Operation Not Supported");
+                    case 6 -> showOrderHistory();
+                    case 7 -> showNewNotifications();
+                    case 8 -> showAllNotifications();
+                    case 0 -> {
+                        success("<--Back");
+                        return;
+                    }
+                    default -> failure("Invalid choice.");
+                }
+            } catch (Exception e) {
+                exception(e);
+            }
+        }
     }
 }

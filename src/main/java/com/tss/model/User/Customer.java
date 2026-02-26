@@ -11,7 +11,7 @@ public class Customer extends User{
 
     private final List<Order> orderList;
     private String upiId;
-    private final Order cart;
+    private Order cart;
     private String address;
 
     public Customer(String name, String phone, String password) {
@@ -42,9 +42,13 @@ public class Customer extends User{
 //        return new Order();
 //    }
 
-    public void cancelOrder(int id){
-        cart.moveToNextState(false);
+    public void setNewCart(){
+        cart = new Order(this);
     }
+
+//    public void cancelOrder(int id){
+//        cart.moveToNextState(false);
+//    }
 
 //    public List<Order> getOnGoingOrders(){
 //        return list of Orders;

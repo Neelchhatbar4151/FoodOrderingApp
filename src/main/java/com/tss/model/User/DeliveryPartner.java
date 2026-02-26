@@ -3,6 +3,7 @@ package com.tss.model.User;
 import com.tss.Datatype.AvailabilityStatus;
 import com.tss.Datatype.Role;
 import com.tss.Exception.DeliveryPartnerIsBusyException;
+import com.tss.Service.OrderService;
 import com.tss.model.Order;
 
 import java.util.ArrayList;
@@ -25,19 +26,29 @@ public class DeliveryPartner extends User {
         this.assignedOrder = null;
         this.totalEarnings = 0.0;
         this.deliveredOrders = new ArrayList<>();
+
+        //Registering Delivery Partner in Queue
+        OrderService.getInstance().addDeliveryPartner(this);
     }
 
-    public void assignOrder(Order order) throws InterruptedException {
+    public void assignOrder(Order order) {
         if(status == AvailabilityStatus.NOT_AVAILABLE){
             throw new DeliveryPartnerIsBusyException();
         }
         status = AvailabilityStatus.NOT_AVAILABLE;
         assignedOrder = order;
-        Thread.sleep(10000);
-        order.moveToNextState(true);
-        totalEarnings += (order.getFinalAmount() * commissionPercentage);
+    }
+
+    public void completeDelivery(){
+        if(assignedOrder == null){
+            return ;
+        }
+
+        totalEarnings += (assignedOrder.getFinalAmount() * commissionPercentage);
         assignedOrder = null;
         status = AvailabilityStatus.AVAILABLE;
+
+        OrderService.getInstance().addDeliveryPartner(this);
     }
 
     public AvailabilityStatus getStatus() {
@@ -54,6 +65,10 @@ public class DeliveryPartner extends User {
 
     public void setIsApproved(boolean state){
         this.isApproved = state;
+    }
+
+    public double getTotalEarnings() {
+        return totalEarnings;
     }
 
     @Override

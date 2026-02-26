@@ -2,6 +2,7 @@ package com.tss.Repository;
 
 import com.tss.Datatype.Role;
 import com.tss.model.User.Admin;
+import com.tss.model.User.Customer;
 import com.tss.model.User.DeliveryPartner;
 import com.tss.model.User.User;
 
@@ -14,12 +15,22 @@ public class InMemoryUserRepository implements UserRepository {
 
     private final Map<Role, Map<String, User>> users;
 
+    private void init(){
+        addNewUser(new Admin("Neel", "1234", "ABC"));
+
+        addNewUser(new DeliveryPartner("Rohan", "9876", "XYZ"));
+        addNewUser(new DeliveryPartner("Mohan", "5678", "PQR"));
+
+        addNewUser(new Customer("Amit", "9123", "ABC"));
+        addNewUser(new Customer("Suresh", "3456", "DEF"));
+    }
+
     public InMemoryUserRepository(){
         this.users = new HashMap<>();
 
+        init();
         //Default Accounts
-        users.put(Role.ADMIN, new HashMap<>());
-        users.get(Role.ADMIN).put("1234", new Admin("Neel", "1234", "BCD"));
+
     }
 
     @Override
