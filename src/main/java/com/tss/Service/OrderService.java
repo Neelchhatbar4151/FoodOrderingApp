@@ -1,6 +1,7 @@
 package com.tss.Service;
 
 import com.tss.Datatype.OrderStatus;
+import com.tss.model.Notification;
 import com.tss.model.Order;
 import com.tss.model.User.DeliveryPartner;
 
@@ -18,7 +19,7 @@ public class OrderService {
     }
 
     public void checkQueue(){
-        while(!deliveryPartnerQueue.isEmpty()){
+        while(!deliveryPartnerQueue.isEmpty() && !orderQueue.isEmpty()){
             Order order = orderQueue.poll();
             if(order.getStatus() != OrderStatus.WAITING_FOR_DELIVERY_PARTNER){
                 continue;
@@ -26,6 +27,8 @@ public class OrderService {
             DeliveryPartner deliveryPartner = deliveryPartnerQueue.poll();
             order.assignDeliveryPartner(deliveryPartner);
             deliveryPartner.assignOrder(order);
+            order.getCustomer().addNotification(new Notification("Delivery Partner: " + deliveryPartner + " Assigned to your Order: " + order));
+            order.getDeliveryPartner().addNotification(new Notification("Order Assigned, Order: " + order + " Customer: " + order.getCustomer()));
             order.moveToNextState(true);
         }
     }
@@ -34,6 +37,10 @@ public class OrderService {
         deliveryPartnerQueue.add(deliveryPartner);
 
         checkQueue();
+    }
+
+    public void removeDeliveryPartner(DeliveryPartner deliveryPartner){
+        deliveryPartnerQueue.remove(deliveryPartner);
     }
 
     public void addOrder(Order order){

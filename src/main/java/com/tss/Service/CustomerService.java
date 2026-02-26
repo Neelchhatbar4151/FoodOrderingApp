@@ -1,14 +1,12 @@
 package com.tss.Service;
 
 
+import com.tss.Datatype.AvailabilityStatus;
 import com.tss.Datatype.OrderStatus;
 import com.tss.Repository.FoodItemRepository;
 import com.tss.Repository.InMemoryFoodItemRepository;
 import com.tss.Repository.UserRepository;
-import com.tss.model.CurrentUser;
-import com.tss.model.FoodItem;
-import com.tss.model.Notification;
-import com.tss.model.Order;
+import com.tss.model.*;
 import com.tss.model.User.Customer;
 
 import java.nio.channels.Selector;
@@ -33,6 +31,10 @@ public class CustomerService {
 
     private void addItemToCart(){
         FoodItem item = selector.selectFoodItem();
+        if(item.getAvailability() == AvailabilityStatus.NOT_AVAILABLE){
+            failure("Chosen Item is Currently Not Available.");
+            return;
+        }
         customer.addItemToCart(item);
     }
 
@@ -51,6 +53,18 @@ public class CustomerService {
 
     private void placeOrder(){
         Order cart = customer.getCart();
+
+        if(cart.getTotalAmount() == 0){
+            failure("Cart is Empty.");
+            return;
+        }
+
+        for(OrderItem item: cart.getItems()){
+            if(item.foodItem.getAvailability() == AvailabilityStatus.NOT_AVAILABLE){
+                failure("Cart Contains Some Unavailable Items, Please Remove them to place order..");
+                return;
+            }
+        }
 
         customer.setNewCart();
         //Created -> Confirmed
@@ -140,6 +154,16 @@ public class CustomerService {
         }
     }
 
+    private void showOnGoingOrders(){
+        List<Order> orderHistory = customer.getOnGoingOrders();
+        if(orderHistory.isEmpty()){
+            failure("No On Going Order.");
+        }
+        for(Order o: orderHistory){
+            success(o.toString());
+        }
+    }
+
     public void start(){
         while(true){
             try {
@@ -147,12 +171,13 @@ public class CustomerService {
                     ================== CUSTOMER MENU ==================
                     1. Add Food Item To Cart
                     2. Remove Food Item From Cart
-                    3. Place Cart
+                    3. Place Order
                     4. Show Cart
                     5. Cancel Order (NS)
                     6. Show Order History
                     7. Show New Notifications
                     8. Show All Notifications
+                    9. Show On Going Orders
                     0.  Go Back
                     ================================================
                     Enter your choice:""");
@@ -167,6 +192,7 @@ public class CustomerService {
                     case 6 -> showOrderHistory();
                     case 7 -> showNewNotifications();
                     case 8 -> showAllNotifications();
+                    case 9 -> showOnGoingOrders();
                     case 0 -> {
                         success("<--Back");
                         return;

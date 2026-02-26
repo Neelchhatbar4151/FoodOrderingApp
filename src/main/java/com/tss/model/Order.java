@@ -153,6 +153,10 @@ public class Order {
         paymentService = service;
     }
 
+    public Customer getCustomer(){
+        return customer;
+    }
+
     @Override
     public String toString() {
         return "Order{" +
@@ -162,9 +166,9 @@ public class Order {
                 ", discount=" + discount +
                 ", discountDescription='" + discountDescription + '\'' +
                 ", finalAmount=" + getFinalAmount() +
-//                ", paymentService=" + paymentService +
+                ", paymentService=" + paymentService +
                 ", transactionId='" + transactionId + '\'' +
-                ", deliveryPartner=" + deliveryPartner +
+//                ", deliveryPartner=" + deliveryPartner +
                 ", status=" + status +
                 ", orderPlacedOn=" + orderPlacedOn +
                 '}';

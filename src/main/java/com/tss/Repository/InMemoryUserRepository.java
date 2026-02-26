@@ -29,8 +29,6 @@ public class InMemoryUserRepository implements UserRepository {
         this.users = new HashMap<>();
 
         init();
-        //Default Accounts
-
     }
 
     @Override
@@ -64,9 +62,13 @@ public class InMemoryUserRepository implements UserRepository {
     }
 
     @Override
-    public void addNewUser(User user) {
+    public boolean addNewUser(User user) {
         Map<String, User> roleSpecificUsers = users.getOrDefault(user.role, new HashMap<>());
+        if(roleSpecificUsers.containsKey(user.getPhone())){
+            return false;
+        }
         roleSpecificUsers.put(user.getPhone(), user);
         users.put(user.role, roleSpecificUsers);
+        return true;
     }
 }

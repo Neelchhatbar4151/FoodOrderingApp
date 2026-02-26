@@ -1,5 +1,6 @@
 package com.tss.model.User;
 
+import com.tss.Datatype.OrderStatus;
 import com.tss.Datatype.Role;
 import com.tss.model.FoodItem;
 import com.tss.model.Order;
@@ -22,10 +23,6 @@ public class Customer extends User{
         this.address = "";
     }
 
-    public List<Order> getOrderList() {
-        return orderList;
-    }
-
     public void addItemToCart(FoodItem item){
         cart.addItem(item);
     }
@@ -38,22 +35,20 @@ public class Customer extends User{
         return new ArrayList<>(orderList);
     }
 
-//    public Order getPastOrderById(int id){
-//        return new Order();
-//    }
-
     public void setNewCart(){
+        orderList.add(cart);
         cart = new Order(this);
     }
 
-//    public void cancelOrder(int id){
-//        cart.moveToNextState(false);
-//    }
-
-//    public List<Order> getOnGoingOrders(){
-//        return list of Orders;
-//    }
-
+    public List<Order> getOnGoingOrders(){
+        List<Order> onGoingOrders = new ArrayList<>();
+        for(int i=orderList.size()-1;i>=0;i--){
+            if(orderList.get(i).getStatus() != OrderStatus.CANCELLED && orderList.get(i).getStatus() != OrderStatus.DELIVERED){
+                onGoingOrders.add(orderList.get(i));
+            }
+        }
+        return onGoingOrders;
+    }
 
     @Override
     public String toString() {
@@ -92,4 +87,12 @@ public class Customer extends User{
     public void setAddress(String address) {
         this.address = address;
     }
+
+//    public void cancelOrder(int id){
+//        cart.moveToNextState(false);
+//    }
+
+//    public Order getPastOrderById(int id){
+//        return new Order();
+//    }
 }

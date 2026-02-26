@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface UserRepository {
     User getUser(String phone, String password, Role role);
-    void addNewUser(User user);
+    boolean addNewUser(User user);
     List<User> getAllUsersInRole(Role role);
     User getUserById(int id);
 }

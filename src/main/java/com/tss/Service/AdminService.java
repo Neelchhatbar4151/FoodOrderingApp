@@ -53,7 +53,6 @@ public class AdminService {
                 .build();
 
         foodRepo.addFoodItem(newItem);
-
         success(newItem.name + " Successfully Added !");
     }
 
@@ -100,7 +99,7 @@ public class AdminService {
         if(deliveryPartner == null) return;
 
         deliveryPartner.setIsApproved(true);
-
+        deliveryPartner.addNotification(new Notification("You've Been approved as a Delivery Partner, Now the orders can be assigned to you..."));
         success("Approved Successfully !");
     }
 
@@ -109,8 +108,8 @@ public class AdminService {
         if(deliveryPartner == null) return;
 
         deliveryPartner.setIsApproved(false);
-
-        success("Un Approved Successfully !");
+        deliveryPartner.addNotification(new Notification("You've Been unapproved as a Delivery Partner, Now the orders can't be assigned to you..."));
+        success("Unapproved Successfully !");
     }
 
     public void notifyAllCustomers(){
@@ -139,6 +138,29 @@ public class AdminService {
         success("Notification sent to all Delivery Partners");
     }
 
+    private void changeDeliveryPartnerCommission() {
+        info("Enter Changed Commission: ");
+        double commission = takeDouble();
+
+        Notification notification = new Notification("Commission Per Order Changed to " + (commission/100) + " %.");
+
+        for(User u: userRepo.getAllUsersInRole(Role.DELIVERY_PARTNER)){
+            u.addNotification(notification);
+        }
+
+        success("Notification sent to all Delivery Partners");
+    }
+
+    private void displayAllDeliveryPartners() {
+        if(userRepo.getAllUsersInRole(Role.DELIVERY_PARTNER).isEmpty()){
+            failure("No Delivery Partner Exists.");
+            return;
+        }
+        for(User u: userRepo.getAllUsersInRole(Role.DELIVERY_PARTNER)){
+            success(((DeliveryPartner)u).toString());
+        }
+    }
+
     public void start(){
         while(true){
             try {
@@ -159,7 +181,8 @@ public class AdminService {
                     13. Notify All Delivery Partners
                     14. Display All Food Items
                     15. Display All Food Categories
-                    16. Change Delivery Partner Commission (NS)
+                    16. Change Delivery Partner Commission
+                    17. Display All Delivery Partners
                     0.  Go Back
                     ================================================
                     Enter your choice:""");
@@ -181,6 +204,8 @@ public class AdminService {
                     case 13 -> notifyAllDeliveryPartners();
                     case 14 -> selector.displayAllFoodItems(foodRepo.getAllFoodItems());
                     case 15 -> selector.displayAllCategories(foodRepo.getAllFoodCategories());
+                    case 16 -> changeDeliveryPartnerCommission();
+                    case 17 -> displayAllDeliveryPartners();
                     case 0 -> {
                         success("<--Back");
                         return;

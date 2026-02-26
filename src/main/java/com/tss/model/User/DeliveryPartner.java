@@ -4,6 +4,7 @@ import com.tss.Datatype.AvailabilityStatus;
 import com.tss.Datatype.Role;
 import com.tss.Exception.DeliveryPartnerIsBusyException;
 import com.tss.Service.OrderService;
+import com.tss.model.Notification;
 import com.tss.model.Order;
 
 import java.util.ArrayList;
@@ -27,8 +28,7 @@ public class DeliveryPartner extends User {
         this.totalEarnings = 0.0;
         this.deliveredOrders = new ArrayList<>();
 
-        //Registering Delivery Partner in Queue
-        OrderService.getInstance().addDeliveryPartner(this);
+        addNotification(new Notification("You're Currently Not Approved as a Delivery partner, once Admin approves your account, you'll be eligible to deliver orders."));
     }
 
     public void assignOrder(Order order) {
@@ -39,16 +39,20 @@ public class DeliveryPartner extends User {
         assignedOrder = order;
     }
 
-    public void completeDelivery(){
+    public boolean completeDelivery(){
         if(assignedOrder == null){
-            return ;
+            return false;
         }
+
+        addNotification(new Notification("Order Completion, Commission Earned: " + (assignedOrder.getFinalAmount() * commissionPercentage) + ", Order: " + assignedOrder));
+        assignedOrder.getCustomer().addNotification(new Notification("Order Delivered Successfully, Order: " + assignedOrder));
 
         totalEarnings += (assignedOrder.getFinalAmount() * commissionPercentage);
         assignedOrder = null;
         status = AvailabilityStatus.AVAILABLE;
 
         OrderService.getInstance().addDeliveryPartner(this);
+        return true;
     }
 
     public AvailabilityStatus getStatus() {
@@ -64,7 +68,15 @@ public class DeliveryPartner extends User {
     }
 
     public void setIsApproved(boolean state){
-        this.isApproved = state;
+        if(state){
+            isApproved = true;
+            //Registering Delivery Partner in Queue
+            OrderService.getInstance().addDeliveryPartner(this);
+        }
+        else{
+            isApproved = false;
+            OrderService.getInstance().removeDeliveryPartner(this);
+        }
     }
 
     public double getTotalEarnings() {

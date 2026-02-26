@@ -43,7 +43,10 @@ public class MiniFoodOrderingApp {
             user = new DeliveryPartner(name, phone, password);
         }
 
-        userRepo.addNewUser(user);
+        if(!userRepo.addNewUser(user)){
+            failure(role + " With Same Phone Number Already Exists.");
+            return;
+        }
 
         success(role.name() + " Registered Successfully !");
     }

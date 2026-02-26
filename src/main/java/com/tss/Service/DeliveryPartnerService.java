@@ -53,7 +53,12 @@ public class DeliveryPartnerService {
     }
 
     private void completeDelivery() {
-        deliveryPartner.completeDelivery();
+        boolean result = deliveryPartner.completeDelivery();
+
+        if(!result){
+            failure("Order is Not assigned Yet !");
+            return ;
+        }
 
         success("Order Delivered Successfully !");
     }

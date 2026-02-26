@@ -89,8 +89,9 @@ public class SelectorService {
             }
             info("Enter Delivery Partner id: ");
             int id = takeInt();
-            chosenDeliveryPartner = (DeliveryPartner) userRepo.getUserById(id);
-            if(chosenDeliveryPartner != null){
+            User user = userRepo.getUserById(id);
+            if(user instanceof DeliveryPartner){
+                chosenDeliveryPartner = (DeliveryPartner) userRepo.getUserById(id);
                 break;
             }
             failure("Invalid Delivery Partner Id.");
