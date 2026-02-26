@@ -1,9 +1,11 @@
 package com.tss.Utils;
 
+import com.tss.model.Order;
+import com.tss.model.OrderItem;
+
 import java.util.List;
 
-import static com.tss.Utils.Print.info;
-import static com.tss.Utils.Print.success;
+import static com.tss.Utils.Print.*;
 
 public class Display {
     private Display(){}
@@ -86,5 +88,105 @@ public class Display {
             2. Cash On Delivery
             3. Cancel Order
             Enter:""");
+    }
+
+    public static void displayDeliveryPartnerHeading() {
+        System.out.printf(
+                "%5s %-20s %-15s %-15s %-12s %-20s %-20s %-12s\n",
+                "Id",
+                "Role",
+                "Phone",
+                "Name",
+                "Earnings",
+                "Approved",
+                "Created On",
+                "Status"
+        );
+
+        System.out.println("-".repeat(125));
+    }
+
+    public static void displayFoodItemHeading(){
+        System.out.printf(
+                "%-5s %-20s %-10s %-15s %-15s %-18s %-10s %-30s\n",
+                "ID",
+                "Name",
+                "Price",
+                "Category",
+                "Available",
+                "PrepTime(min)",
+                "Calories",
+                "Description"
+        );
+
+        System.out.println("-".repeat(130));
+    }
+
+    public static void displayFoodCategoryHeading() {
+        System.out.printf(
+                "%-5s %-20s\n",
+                "ID",
+                "Category Name"
+        );
+
+        System.out.println("-".repeat(25));
+    }
+
+    public static void displayOrderHeading(){
+        System.out.printf(
+                "%-8s %-15s %-18s %-25s %-12s %-10s %-12s %-30s %-20s %-25s\n",
+                "OrderID",
+                "Payment",
+                "TransactionID",
+                "DeliveryPartner",
+                "Total",
+                "Discount",
+                "Final",
+                "Status",
+                "PlacedOn",
+                "DiscountDesc"
+        );
+
+        System.out.println("-".repeat(175));
+    }
+
+    public static void displayOrderItemHeading(){
+        System.out.printf(
+                "%-25s %-10s %-12s %-12s\n",
+                "FoodItem",
+                "Price",
+                "Quantity",
+                "Subtotal"
+        );
+
+        System.out.println("-".repeat(63));
+    }
+
+    public static void displayOrder(Order order){
+        if(order.getItems().isEmpty()){
+            failure("No items in cart...");
+            return;
+        }
+        String discountDescription = order.getDiscountDescription();
+        success("Discount Description: " + (discountDescription == null?"No Discount Applied.":discountDescription));
+        Display.displayOrderItemHeading();
+
+        for(OrderItem item: order.getItems()){
+            success(item.toString());
+        }
+        System.out.println("-".repeat(63));
+        order.getFinalAmount();
+        System.out.printf(
+                "%-25s %-10s %-12s %-12.2f\n",
+                "",
+                "",
+                "Discount: ",
+                order.getDiscount());
+        System.out.printf(
+                "%-25s %-10s %-12s %-12.2f\n",
+                "",
+                "",
+                "Total: ",
+                order.getFinalAmount());
     }
 }

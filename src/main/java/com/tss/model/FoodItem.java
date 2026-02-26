@@ -42,16 +42,17 @@ public class FoodItem {
 
     @Override
     public String toString() {
-        return "FoodItem{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", price=" + price +
-                ", category=" + category +
-                ", availability=" + availability +
-                ", preparationTime=" + preparationTime +
-                ", calories=" + calories +
-                ", description='" + description + '\'' +
-                '}';
+        return String.format(
+                "%-5d %-20s %-10.2f %-15s %-15s %-18s %-10s %-30s",
+                id,
+                name,
+                price,
+                category.name,
+                availability,
+                (preparationTime == 0?"-":preparationTime),
+                (calories == 0?"-":calories),
+                (description.isEmpty()?"-":description)
+        );
     }
 
     public static class Builder {

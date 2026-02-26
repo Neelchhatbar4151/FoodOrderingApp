@@ -88,7 +88,8 @@ public class DeliveryPartner extends User {
     @Override
     public String toString() {
         return String.format(
-                "%-25s %-15s %-15s %-12.2f %-20s %-20s %-12s",
+                "%5s %-20s %-15s %-15s %-12.2f %-20s %-20s %-12s",
+                id,
                 role,
                 phone,
                 name,

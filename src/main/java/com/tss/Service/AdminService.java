@@ -2,6 +2,7 @@ package com.tss.Service;
 
 import com.tss.Datatype.AvailabilityStatus;
 import com.tss.Datatype.Role;
+import com.tss.Exception.NoDataFoundException;
 import com.tss.Repository.FoodItemRepository;
 import com.tss.Repository.InMemoryFoodItemRepository;
 import com.tss.Repository.InMemoryUserRepository;
@@ -156,22 +157,10 @@ public class AdminService {
     private void displayAllDeliveryPartners() {
 
         if(userRepo.getAllUsersInRole(Role.DELIVERY_PARTNER).isEmpty()){
-            failure("No Delivery Partner Exists.");
-            return;
+            throw new NoDataFoundException("Delivery Partners");
         }
 
-        System.out.printf(
-                "%-15s %-15s %-15s %-12s %-12s %-20s %-12s\n",
-                "Role",
-                "Phone",
-                "Name",
-                "Earnings",
-                "Approved",
-                "Created On",
-                "Status"
-        );
-
-        System.out.println("-----------------------------------------------------------------------------------------------");
+        Display.displayDeliveryPartnerHeading();
 
         userRepo.getAllUsersInRole(Role.DELIVERY_PARTNER)
                 .forEach(( i)->success(i.toString()));
@@ -179,19 +168,18 @@ public class AdminService {
 
     private void displayAllFoodItems(){
         if(foodRepo.getAllFoodItems().isEmpty()){
-            failure("No Food Item Exists.");
-            return ;
+            throw new NoDataFoundException("Food Items");
         }
-
+        Display.displayFoodItemHeading();
         foodRepo.getAllFoodItems()
                 .forEach((i)->success(i.toString()));
     }
 
     private void displayAllFoodCategories(){
         if(foodRepo.getAllFoodCategories().isEmpty()){
-            failure("No Food Category Exists.");
-            return ;
+            throw new NoDataFoundException("Food Categories");
         }
+        Display.displayFoodCategoryHeading();
         foodRepo.getAllFoodCategories()
                 .forEach((i) -> success(i.toString()));
     }
@@ -199,37 +187,41 @@ public class AdminService {
     public void start(){
         while(true){
             try {
-
-                Display.displayAdminMenu();
-
-                int choice = takeInt();
-                switch (choice) {
-                    case 1 -> addNewFoodItem();
-                    case 2 -> addNewFoodCategory();
-                    case 3 -> removeFoodItem();
-                    case 4 -> removeFoodCategory();
-                    case 5 -> toggleFoodItemAvailability();
-//                    case 6 -> createNewDiscount();
-//                    case 7 -> createNewFlatDiscount();
-//                    case 8 -> createNewPercentageDiscount();
-//                    case 9 -> createNewFestivalDiscount();
-                    case 10 -> approveDeliveryPartner();
-                    case 11 -> unApproveDeliveryPartner();
-                    case 12 -> notifyAllCustomers();
-                    case 13 -> notifyAllDeliveryPartners();
-                    case 14 -> displayAllFoodItems();
-                    case 15 -> displayAllFoodCategories();
-                    case 16 -> changeDeliveryPartnerCommission();
-                    case 17 -> displayAllDeliveryPartners();
-                    case 0 -> {
-                        success("<--Back");
-                        return;
-                    }
-                    default -> failure("Invalid choice.");
-                }
+                if ( !process() ) return;
             } catch (Exception e) {
                 exception(e);
             }
         }
+    }
+
+    private boolean process(){
+        Display.displayAdminMenu();
+
+        int choice = takeInt();
+        switch (choice) {
+            case 1 -> addNewFoodItem();
+            case 2 -> addNewFoodCategory();
+            case 3 -> removeFoodItem();
+            case 4 -> removeFoodCategory();
+            case 5 -> toggleFoodItemAvailability();
+//                    case 6 -> createNewDiscount();
+//                    case 7 -> createNewFlatDiscount();
+//                    case 8 -> createNewPercentageDiscount();
+//                    case 9 -> createNewFestivalDiscount();
+            case 10 -> approveDeliveryPartner();
+            case 11 -> unApproveDeliveryPartner();
+            case 12 -> notifyAllCustomers();
+            case 13 -> notifyAllDeliveryPartners();
+            case 14 -> displayAllFoodItems();
+            case 15 -> displayAllFoodCategories();
+            case 16 -> changeDeliveryPartnerCommission();
+            case 17 -> displayAllDeliveryPartners();
+            case 0 -> {
+                success("<--Back");
+                return false;
+            }
+            default -> throw new IllegalArgumentException("Invalid Option Selected.");
+        }
+        return true;
     }
 }
