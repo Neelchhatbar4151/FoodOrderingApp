@@ -86,6 +86,8 @@ public class Display {
                 
                 3. View Delivery Partners
                 
+                4. View Queues
+                
                 0. Go Back
                 ==========================================
                 Enter your choice:""");
@@ -107,13 +109,13 @@ public class Display {
     }
 
     public static void displayCustomerMenu() {
+        //Cancel Order is Remaining
         info("""
             ================== CUSTOMER MENU ==================
             1. Add Food Item To Cart
             2. Remove Food Item From Cart
             3. Place Order
             4. Show Cart
-//            5. Cancel Order (NS)
             5. Show Order History
             6. Show New Notifications
             7. Show All Notifications
@@ -124,14 +126,14 @@ public class Display {
     }
 
     public static void displayDeliveryPartnerMenu() {
+//        1. Set Availability Status (NS) Remaining
         info("""
             ================== Delivery Partner MENU ==================
-            1. Set Availability Status (NS)
-            2. Complete Order Delivery
-            3. Get Total Earnings
-            4. Show Orders Delivered
-            5. Show New Notifications
-            6. Show All Notifications
+            1. Complete Order Delivery
+            2. Get Total Earnings
+            3. Show Orders Delivered
+            4. Show New Notifications
+            5. Show All Notifications
             0.  Go Back
             ===========================================================
             Enter your choice:""");

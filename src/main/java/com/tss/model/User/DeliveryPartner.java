@@ -44,32 +44,30 @@ public class DeliveryPartner extends User {
             return false;
         }
 
-        addNotification(new Notification("Order Completion, Commission Earned: " + (assignedOrder.getFinalAmount() * commissionPercentage) + ", Order: " + assignedOrder));
-        assignedOrder.getCustomer().addNotification(new Notification("Order Delivered Successfully, Order: " + assignedOrder));
+        addNotification(new Notification("Order Completion, Commission Earned: " + (assignedOrder.getFinalAmount() * commissionPercentage) + ", Order Id: " + assignedOrder.getId()));
+        assignedOrder.getCustomer().addNotification(new Notification("Order Delivered Successfully, Order Id: " + assignedOrder.getId()));
         assignedOrder.moveToNextState(true);
+        this.deliveredOrders.add(assignedOrder);
 
         totalEarnings += (assignedOrder.getFinalAmount() * commissionPercentage);
         assignedOrder = null;
         status = AvailabilityStatus.AVAILABLE;
 
-        OrderService.getInstance().addDeliveryPartner(this);
+        if(isApproved){
+            OrderService.getInstance().addDeliveryPartner(this);
+        }
 
         return true;
-    }
-
-    public AvailabilityStatus getStatus() {
-        return status;
     }
 
     public List<Order> getDeliveredOrders() {
         return deliveredOrders;
     }
 
-    public boolean isApproved() {
-        return isApproved;
-    }
-
     public void setIsApproved(boolean state){
+        if(state == isApproved){
+            return;
+        }
         if(state){
             isApproved = true;
             //Registering Delivery Partner in Queue

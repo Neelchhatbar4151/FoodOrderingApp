@@ -49,7 +49,7 @@ public abstract class User {
 
     public List<Notification> getNewNotifications(){
         List<Notification> newNotifications = new ArrayList<>(notifications.subList(indexOfNewNotification, notifications.size()));
-        indexOfNewNotification = newNotifications.size();
+        indexOfNewNotification = notifications.size();
         return newNotifications;
     }
 }

@@ -3,6 +3,7 @@ package com.tss.model;
 import static com.tss.Utils.Constant.newNotificationId;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 public class Notification {
@@ -18,6 +19,8 @@ public class Notification {
 
     @Override
     public String toString() {
-        return "[NOTIFICATION] [" + timeStamp + "] " + description;
+        DateTimeFormatter formatter =
+                DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");
+        return "[NOTIFICATION] [" + timeStamp.format(formatter) + "] " + description;
     }
 }

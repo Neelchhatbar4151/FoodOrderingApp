@@ -1,12 +1,15 @@
 package com.tss.Service;
 
 import com.tss.Datatype.OrderStatus;
+import com.tss.Utils.Display;
 import com.tss.model.Notification;
 import com.tss.model.Order;
 import com.tss.model.User.DeliveryPartner;
 
 import java.util.LinkedList;
 import java.util.Queue;
+
+import static com.tss.Utils.Print.success;
 
 //Singleton
 public class OrderService {
@@ -50,6 +53,20 @@ public class OrderService {
         orderQueue.add(order);
 
         checkQueue();
+    }
+
+    public void printOrderQueue(){
+        Display.displayOrderHeading();
+        orderQueue.forEach((i)->{
+            success(i.toString());
+        });
+    }
+
+    public void printDeliveryPartnerQueue(){
+        Display.displayDeliveryPartnerHeading();
+        deliveryPartnerQueue.forEach((i) -> {
+            success(i.toString());
+        });
     }
 
     static class Initiator{

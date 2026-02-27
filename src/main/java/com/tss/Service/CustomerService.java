@@ -115,8 +115,8 @@ public class CustomerService {
 
                 int choice = takeInt();
                 switch (choice) {
-                    case 1 -> new UPI(order);
-                    case 2 -> new CashOnDelivery(order);
+                    case 1 -> new UPI(order).pay();
+                    case 2 -> new CashOnDelivery(order).pay();
                     case 3 -> {
                         //CANCELLED
                         order.moveToNextState(false);

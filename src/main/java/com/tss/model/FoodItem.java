@@ -32,14 +32,6 @@ public class FoodItem {
         return availability;
     }
 
-    public int getCalories() {
-        return calories;
-    }
-
-    public int getPreparationTime() {
-        return preparationTime;
-    }
-
     @Override
     public String toString() {
         return String.format(

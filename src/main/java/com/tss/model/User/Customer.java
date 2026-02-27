@@ -82,12 +82,4 @@ public class Customer extends User{
     public void setAddress(String address) {
         this.address = address;
     }
-
-//    public void cancelOrder(int id){
-//        cart.moveToNextState(false);
-//    }
-
-//    public Order getPastOrderById(int id){
-//        return new Order();
-//    }
 }

@@ -1,6 +1,7 @@
 package com.tss.Service;
 
 
+import com.tss.Exception.NoDataFoundException;
 import com.tss.Utils.Display;
 import com.tss.model.CurrentUser;
 import com.tss.model.Notification;
@@ -24,7 +25,7 @@ public class DeliveryPartnerService {
     private void showDeliveredOrders(){
         List<Order> orderHistory = deliveryPartner.getDeliveredOrders();
         if(orderHistory.isEmpty()){
-            failure("No Order History.");
+            throw new NoDataFoundException("Order History");
         }
         Display.displayOrderHeading();
         for(Order o: orderHistory){
@@ -35,7 +36,7 @@ public class DeliveryPartnerService {
     private void showNewNotifications(){
         List<Notification> notifications = deliveryPartner.getNewNotifications();
         if(notifications.isEmpty()){
-            failure("No Notification History.");
+            throw new NoDataFoundException("Notification New Notifications");
         }
         for(Notification n: notifications){
             success(n.toString());
@@ -47,7 +48,7 @@ public class DeliveryPartnerService {
         notifications.addAll(deliveryPartner.getNewNotifications());
 
         if(notifications.isEmpty()){
-            failure("No Notification History.");
+            throw new NoDataFoundException("Notification History");
         }
         for(Notification n: notifications){
             success(n.toString());
@@ -76,12 +77,12 @@ public class DeliveryPartnerService {
 
                 int choice = takeInt();
                 switch (choice) {
-                    case 1 -> failure("Operation not supported.");
-                    case 2 -> completeDelivery();
-                    case 3 -> getTotalEarnings();
-                    case 4 -> showDeliveredOrders();
-                    case 5 -> showNewNotifications();
-                    case 6 -> showAllNotifications();
+//                    case 1 -> failure("Operation not supported.");
+                    case 1 -> completeDelivery();
+                    case 2 -> getTotalEarnings();
+                    case 3 -> showDeliveredOrders();
+                    case 4 -> showNewNotifications();
+                    case 5 -> showAllNotifications();
                     case 0 -> {
                         success("<--Back");
                         return;

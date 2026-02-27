@@ -184,6 +184,14 @@ public class AdminService {
                 .forEach((i) -> success(i.toString()));
     }
 
+    private void displayOrderQueue(){
+        OrderService.getInstance().printOrderQueue();
+    }
+
+    private void displayDeliveryPartnerQueue(){
+        OrderService.getInstance().printDeliveryPartnerQueue();
+    }
+
     public void start(){
         while(true){
             try {
@@ -224,6 +232,14 @@ public class AdminService {
                     case 2 -> displayAllFoodCategories();
 
                     case 3 -> displayAllDeliveryPartners();
+
+                    case 4 -> {
+                        success("| ORDER QUEUE");
+                        displayOrderQueue();
+                        System.out.println();
+                        success("| DELIVERY PARTNER QUEUE");
+                        displayDeliveryPartnerQueue();
+                    }
 
                     case 0 -> {
                         success("<--Back");

@@ -123,10 +123,6 @@ public class Order {
         return getTotalAmount() - getDiscount();
     }
 
-    public String getTransactionId() {
-        return transactionId;
-    }
-
     public DeliveryPartner getDeliveryPartner() {
         return deliveryPartner;
     }
