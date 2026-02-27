@@ -6,6 +6,7 @@ import com.tss.Datatype.OrderStatus;
 import com.tss.Exception.CartContainsUnavailableItemsException;
 import com.tss.Exception.EmptyCartException;
 import com.tss.Exception.ItemNotAvailableException;
+import com.tss.Exception.NoDataFoundException;
 import com.tss.Repository.FoodItemRepository;
 import com.tss.Repository.InMemoryFoodItemRepository;
 import com.tss.Repository.InMemoryUserRepository;
@@ -40,18 +41,26 @@ public class CustomerService {
             throw new ItemNotAvailableException();
         }
         customer.addItemToCart(item);
+        success("Food Item added to cart !");
     }
 
     private void removeItemFromCart(){
-        FoodItem item = selector.selectFoodItem();
+        while(true) {
+            FoodItem item = selector.selectFoodItemFromCart(customer.getCart());
 
-        boolean result = customer.removeItemFromCart(item);
+            try {
+                boolean result = customer.removeItemFromCart(item);
 
-        if(result){
-            success("Food Item Successfully Removed !");
-        }
-        else{
-            failure("Food Item doesn't exist in Cart.");
+                if (result) {
+                    success("Food Item Successfully Removed !");
+                    break;
+                } else {
+                    throw new IllegalArgumentException("Selected Food Item doesn't exist in cart.");
+                }
+            }
+            catch(Exception e){
+                exception(e);
+            }
         }
     }
 
@@ -62,18 +71,17 @@ public class CustomerService {
             throw new EmptyCartException();
         }
 
-        cart.getItems()
-                .forEach((item)-> {
-
-                    if( item.foodItem.getAvailability() == AvailabilityStatus.NOT_AVAILABLE ) {
-                        throw new CartContainsUnavailableItemsException();
-                    }
-
-                });
+        for(OrderItem item: cart.getItems()){
+            if( item.foodItem.getAvailability() == AvailabilityStatus.NOT_AVAILABLE ) {
+                throw new CartContainsUnavailableItemsException();
+            }
+        };
 
         customer.setNewCart();
         //Created -> Confirmed
         cart.moveToNextState(true);
+
+
 
         performPayment(cart);
 
@@ -92,26 +100,29 @@ public class CustomerService {
 
     private void performPayment(Order order){
         info("Order Invoice");
-        success(order.toString());
+        Display.displayOrder(order);
 
         while(true){
-            Display.displayPaymentMenu();
+            try {
+                Display.displayPaymentMenu();
 
-            int choice = takeInt();
-            switch(choice){
-                case 1 -> success("Paid Using UPI");
-                case 2 -> success("Delivery Partner will take payment upon Delivery.");
-                case 3 -> {
-                    //CANCELLED
-                    order.moveToNextState(false);
-                    success("Order Successfully Cancelled !");
+                int choice = takeInt();
+                switch (choice) {
+                    case 1 -> success("Paid Using UPI");
+                    case 2 -> success("Delivery Partner will take payment upon Delivery.");
+                    case 3 -> {
+                        //CANCELLED
+                        order.moveToNextState(false);
+                        success("Order Successfully Cancelled !");
+                    }
+                    default -> throw new IllegalArgumentException("Invalid Option Selected.");
                 }
-                default -> {
-                    failure("Enter Valid Choice.");
-                    continue;
-                }
+                order.setPaymentService(choice == 1?"UPI":"COD");
+                break;
             }
-            break;
+            catch(Exception e){
+                exception(e);
+            }
         }
 
         //Confirmed -> Preparing
@@ -125,15 +136,16 @@ public class CustomerService {
     public void showOrderHistory(){
         List<Order> orderHistory = customer.getOrderHistory();
         if(orderHistory.isEmpty()){
-            failure("No Order History.");
+            throw new NoDataFoundException("Order History");
         }
+        Display.displayOrderHeading();
         orderHistory.forEach((o) -> success(o.toString()));
     }
 
     public void showNewNotifications(){
         List<Notification> notifications = customer.getNewNotifications();
         if(notifications.isEmpty()){
-            failure("No Notification History.");
+            throw new NoDataFoundException("New Notifications");
         }
         notifications.forEach((n) -> success(n.toString()));
     }
@@ -143,7 +155,7 @@ public class CustomerService {
         notifications.addAll(customer.getNewNotifications());
 
         if(notifications.isEmpty()){
-            failure("No Notification History.");
+            throw new NoDataFoundException("Notification History");
         }
         notifications.forEach((n) -> success(n.toString()));
     }
@@ -151,8 +163,9 @@ public class CustomerService {
     private void showOnGoingOrders(){
         List<Order> orderHistory = customer.getOnGoingOrders();
         if(orderHistory.isEmpty()){
-            failure("No On Going Order.");
+            throw new NoDataFoundException("On Going Orders");
         }
+        Display.displayOrderHeading();
         orderHistory.forEach((o) -> success(o.toString()));
     }
 
@@ -166,7 +179,7 @@ public class CustomerService {
                     case 1 -> addItemToCart();
                     case 2 -> removeItemFromCart();
                     case 3 -> placeOrder();
-                    case 4 -> success(customer.getCart().toString());
+                    case 4 -> Display.displayOrder(customer.getCart());
                     case 5 -> failure("Operation Not Supported");
                     case 6 -> showOrderHistory();
                     case 7 -> showNewNotifications();
@@ -176,7 +189,7 @@ public class CustomerService {
                         success("<--Back");
                         return;
                     }
-                    default -> failure("Invalid choice.");
+                    default -> throw new IllegalArgumentException("Invalid Option Selected.");
                 }
             } catch (Exception e) {
                 exception(e);

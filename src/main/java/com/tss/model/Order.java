@@ -5,6 +5,8 @@ import com.tss.model.User.Customer;
 import com.tss.model.User.DeliveryPartner;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,13 +17,12 @@ import static com.tss.Utils.Constant.newOrderId;
 public class Order {
     private final int id;
     private final List<OrderItem> items;
-    private double discount;
     private String discountDescription;
     private String paymentService;
     private final String transactionId;
     private DeliveryPartner deliveryPartner;
     private OrderStatus status;
-    private final LocalDate orderPlacedOn;
+    private LocalDateTime orderPlacedOn;
     private final Customer customer;
 
     private final static Map<OrderStatus, OrderStatus> movementGraph = new HashMap<>();
@@ -39,7 +40,6 @@ public class Order {
     public Order(Customer customer){
         this.id = newOrderId++;
         this.items = new ArrayList<>();
-        this.discount = 0.0;
         this.discountDescription = null;
         this.paymentService = null;
         this.transactionId = null;
@@ -53,7 +53,9 @@ public class Order {
         if(!flag){
             status = OrderStatus.CANCELLED;
         }
-
+        if(status == OrderStatus.CREATED){
+            orderPlacedOn = LocalDateTime.now();
+        }
         OrderStatus tempStatus = movementGraph.get(status);
 
         if(tempStatus == null){
@@ -63,14 +65,6 @@ public class Order {
         status = tempStatus;
 
         return true;
-    }
-
-    public List<OrderItem> getItemsListCopy(){
-        return new ArrayList<>(items);
-    }
-
-    public boolean isOrderPlaced(){
-        return ((status != OrderStatus.CANCELLED) && (status != OrderStatus.CREATED));
     }
 
     public void addItem(FoodItem item){
@@ -126,11 +120,7 @@ public class Order {
     }
 
     public double getFinalAmount() {
-        if(getTotalAmount() > 500){
-            discountDescription = "Flat 50 off on orders greater than 500.";
-            discount = 50;
-        }
-        return getTotalAmount() - discount;
+        return getTotalAmount() - getDiscount();
     }
 
     public String getTransactionId() {
@@ -145,7 +135,7 @@ public class Order {
         return status;
     }
 
-    public LocalDate getOrderPlacedOn() {
+    public LocalDateTime getOrderPlacedOn() {
         return orderPlacedOn;
     }
 
@@ -157,20 +147,38 @@ public class Order {
         return customer;
     }
 
+    public double getDiscount(){
+        if(getTotalAmount() > 500){
+            discountDescription = "Flat 50 off on orders greater than 500.";
+            return 50;
+        }
+        discountDescription = null;
+        return 0;
+    }
+
     @Override
     public String toString() {
-        return "Order{" +
-                "id=" + id +
-                ", items=" + items +
-                ", totalAmount=" + getTotalAmount() +
-                ", discount=" + discount +
-                ", discountDescription='" + discountDescription + '\'' +
-                ", finalAmount=" + getFinalAmount() +
-                ", paymentService=" + paymentService +
-                ", transactionId='" + transactionId + '\'' +
-//                ", deliveryPartner=" + deliveryPartner +
-                ", status=" + status +
-                ", orderPlacedOn=" + orderPlacedOn +
-                '}';
+        DateTimeFormatter formatter =
+                DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");
+        return String.format(
+                "%-8d %-15s %-18s %-25s %-12.2f %-10.2f %-12.2f %-30s %-20s %-25s",
+                id,
+                (paymentService == null?"-":paymentService),
+                (transactionId == null?"-":transactionId),
+                (deliveryPartner != null?
+                deliveryPartner.getName() + " (" + deliveryPartner.getPhone() + ")":
+                "Not Assigned Yet"),
+                getTotalAmount(),
+                getDiscount(),
+                getFinalAmount(),
+                status,
+                (orderPlacedOn == null?"-":orderPlacedOn.format(formatter)),
+                (discountDescription == null?"-":discountDescription)
+        );
+    }
+
+    public String getDiscountDescription() {
+        getDiscount();
+        return discountDescription;
     }
 }

@@ -29,9 +29,13 @@ public class OrderItem {
 
     @Override
     public String toString() {
-        return "OrderItem{" +
-                "foodItem=" + foodItem +
-                ", quantity=" + quantity +
-                '}';
+
+        return String.format(
+                "%-25s %-10.2f %-12d %-12.2f",
+                foodItem.name + " ( ID: " + foodItem.id + " )",
+                foodItem.price,
+                quantity,
+                getSubTotal()
+        );
     }
 }

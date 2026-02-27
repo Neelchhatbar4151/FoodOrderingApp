@@ -26,6 +26,7 @@ public class DeliveryPartnerService {
         if(orderHistory.isEmpty()){
             failure("No Order History.");
         }
+        Display.displayOrderHeading();
         for(Order o: orderHistory){
             success(o.toString());
         }
@@ -85,7 +86,7 @@ public class DeliveryPartnerService {
                         success("<--Back");
                         return;
                     }
-                    default -> failure("Invalid choice.");
+                    default -> throw new IllegalArgumentException("Invalid Choice.");
                 }
             } catch (Exception e) {
                 exception(e);

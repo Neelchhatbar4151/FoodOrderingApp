@@ -18,9 +18,10 @@ public class Category {
 
     @Override
     public String toString() {
-        return "Category{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
+        return String.format(
+                "%-5d %-20s",
+                id,
+                name
+        );
     }
 }

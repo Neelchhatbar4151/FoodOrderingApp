@@ -18,9 +18,6 @@ public class Notification {
 
     @Override
     public String toString() {
-        return "Notification{" +
-                ", description='" + description + '\'' +
-                ", timeStamp=" + timeStamp +
-                '}';
+        return "[NOTIFICATION] [" + timeStamp + "] " + description;
     }
 }
