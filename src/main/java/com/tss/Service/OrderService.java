@@ -30,8 +30,8 @@ public class OrderService {
             DeliveryPartner deliveryPartner = deliveryPartnerQueue.poll();
             order.assignDeliveryPartner(deliveryPartner);
             deliveryPartner.assignOrder(order);
-            order.getCustomer().addNotification(new Notification("Delivery Partner: " + deliveryPartner + " Assigned to your Order: " + order));
-            order.getDeliveryPartner().addNotification(new Notification("Order Assigned, Order: " + order + " Customer: " + order.getCustomer()));
+            order.getCustomer().addNotification(new Notification("Delivery Partner: " + deliveryPartner.getName() + " ( " + deliveryPartner.getPhone() + " ) " + ", Assigned to your Order With Id: " + order.getId()));
+            order.getDeliveryPartner().addNotification(new Notification("Order Assigned, Order Id: " + order.getId() + ", Customer: " + order.getCustomer().getName() + " ( " + order.getCustomer().getPhone() + " ) " + ", Address: " + (order.getCustomer().getAddress())));
             order.moveToNextState(true);
         }
     }

@@ -30,7 +30,7 @@ public class MiniFoodOrderingApp {
         String name = inputTaker.nextLine();
 
         info("Enter Your Phone Number: ");
-        String phone = inputTaker.nextLine();
+        String phone = takePhone();
 
         info("Enter a Password: ");
         String password = inputTaker.nextLine();
@@ -48,7 +48,7 @@ public class MiniFoodOrderingApp {
 
     public void loginUser(Role role){
         info("Enter Phone: ");
-        String phone = inputTaker.nextLine();
+        String phone = takePhone();
 
         info("Enter password: ");
         String password = inputTaker.nextLine();
@@ -98,7 +98,9 @@ public class MiniFoodOrderingApp {
                 failure("X-- Closing App");
                 return false;
             }
-            default -> throw new IllegalArgumentException("Invalid Option Selected.");
+            default -> {
+                throw new IllegalArgumentException("Invalid Option Selected.");
+            }
         }
 
         //Clearing current user session

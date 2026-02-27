@@ -10,29 +10,85 @@ import static com.tss.Utils.Print.*;
 public class Display {
     private Display(){}
 
+//    public static void displayAdminMenu() {
+//        info("""
+//            ================== ADMIN MENU ==================
+//            6.  Create New Discount (NS)
+//            7.  Create New Flat Discount (NS)
+//            8.  Create New Percentage Discount (NS)
+//            9.  Create New Festival Discount (NS)
+//            12. Notify All Customers
+//            13. Notify All Delivery Partners
+//            0.  Go Back
+//            ================================================
+//            Enter your choice:""");
+//    }
     public static void displayAdminMenu() {
         info("""
-            ================== ADMIN MENU ==================
-            1.  Add New Food Item
-            2.  Add New Food Category
-            3.  Remove Food Item
-            4.  Remove Food Category
-            5.  Toggle Food Item Availability
-            6.  Create New Discount (NS)
-            7.  Create New Flat Discount (NS)
-            8.  Create New Percentage Discount (NS)
-            9.  Create New Festival Discount (NS)
-            10. Approve Delivery Partner
-            11. Unapprove Delivery Partner
-            12. Notify All Customers
-            13. Notify All Delivery Partners
-            14. Display All Food Items
-            15. Display All Food Categories
-            16. Change Delivery Partner Commission
-            17. Display All Delivery Partners
-            0.  Go Back
-            ================================================
-            Enter your choice:""");
+                ================== ADMIN MENU ==================
+                1. Manage Food Items
+                2. Manage Delivery Partners
+                3. Send Notifications
+                4. View
+                
+                0. Go Back
+                ================================================
+                Enter your choice:""");
+    }
+
+    public static void displayManageFoodItemsMenu(){
+        info("""
+                ================== Manage Food Items ==================
+                1. Add New Food Item
+                2. Remove Food Item
+                
+                3. Add New Food Category
+                4. Remove Food Category
+                
+                5. Toggle Food Item Availability
+                
+                0. Go Back
+                =======================================================
+                Enter your choice:""");
+    }
+
+    public static void displayManageDeliveryPartnersMenu(){
+        info("""
+                ================== Manage Delivery Partners ==================
+                1. Approve Delivery Partner
+                2. Unapprove Delivery Partner
+                
+                3. Change Delivery Partner Commission
+                
+                0. Go Back
+                ==============================================================
+                Enter your choice:""");
+    }
+
+    public static void displaySendNotificationMenu(){
+        info("""
+                ================== Manage Delivery Partners ==================
+                1. Notify All Customers
+                
+                2. Notify All Delivery Partners
+                
+                0. Go Back
+                ==============================================================
+                Enter your choice:""");
+    }
+
+    public static void displayViewMenu(){
+        info("""
+                ================== View ==================
+                1. View Food Items
+                
+                2. View Food Categories
+                
+                3. View Delivery Partners
+                
+                0. Go Back
+                ==========================================
+                Enter your choice:""");
     }
 
     public static void displayMainMenu(){
@@ -57,19 +113,19 @@ public class Display {
             2. Remove Food Item From Cart
             3. Place Order
             4. Show Cart
-            5. Cancel Order (NS)
-            6. Show Order History
-            7. Show New Notifications
-            8. Show All Notifications
-            9. Show On Going Orders
+//            5. Cancel Order (NS)
+            5. Show Order History
+            6. Show New Notifications
+            7. Show All Notifications
+            8. Show On Going Orders
             0.  Go Back
-            ================================================
+            ===================================================
             Enter your choice:""");
     }
 
     public static void displayDeliveryPartnerMenu() {
         info("""
-            ================== CUSTOMER MENU ==================
+            ================== Delivery Partner MENU ==================
             1. Set Availability Status (NS)
             2. Complete Order Delivery
             3. Get Total Earnings
@@ -77,7 +133,7 @@ public class Display {
             5. Show New Notifications
             6. Show All Notifications
             0.  Go Back
-            ================================================
+            ===========================================================
             Enter your choice:""");
     }
 

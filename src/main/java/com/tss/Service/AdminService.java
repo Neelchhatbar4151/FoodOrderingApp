@@ -103,8 +103,8 @@ public class AdminService {
         DeliveryPartner deliveryPartner = selector.selectDeliveryPartner();
         if(deliveryPartner == null) return;
 
-        deliveryPartner.setIsApproved(true);
         deliveryPartner.addNotification(new Notification("You've Been approved as a Delivery Partner, Now the orders can be assigned to you..."));
+        deliveryPartner.setIsApproved(true);
         success("Approved Successfully !");
     }
 
@@ -199,23 +199,10 @@ public class AdminService {
 
         int choice = takeInt();
         switch (choice) {
-            case 1 -> addNewFoodItem();
-            case 2 -> addNewFoodCategory();
-            case 3 -> removeFoodItem();
-            case 4 -> removeFoodCategory();
-            case 5 -> toggleFoodItemAvailability();
-//                    case 6 -> createNewDiscount();
-//                    case 7 -> createNewFlatDiscount();
-//                    case 8 -> createNewPercentageDiscount();
-//                    case 9 -> createNewFestivalDiscount();
-            case 10 -> approveDeliveryPartner();
-            case 11 -> unApproveDeliveryPartner();
-            case 12 -> notifyAllCustomers();
-            case 13 -> notifyAllDeliveryPartners();
-            case 14 -> displayAllFoodItems();
-            case 15 -> displayAllFoodCategories();
-            case 16 -> changeDeliveryPartnerCommission();
-            case 17 -> displayAllDeliveryPartners();
+            case 1 -> manageFoodItems();
+            case 2 -> manageDeliveryPartners();
+            case 3 -> sendNotifications();
+            case 4 -> view();
             case 0 -> {
                 success("<--Back");
                 return false;
@@ -223,5 +210,104 @@ public class AdminService {
             default -> throw new IllegalArgumentException("Invalid Option Selected.");
         }
         return true;
+    }
+
+    private void view() {
+        while(true){
+            try {
+                Display.displayViewMenu();
+
+                int choice = takeInt();
+                switch (choice) {
+                    case 1 -> displayAllFoodItems();
+
+                    case 2 -> displayAllFoodCategories();
+
+                    case 3 -> displayAllDeliveryPartners();
+
+                    case 0 -> {
+                        success("<--Back");
+                        return ;
+                    }
+                    default -> throw new IllegalArgumentException("Invalid Option Selected.");
+                }
+            } catch (Exception e) {
+                exception(e);
+            }
+        }
+    }
+
+    private void sendNotifications() {
+        while(true){
+            try {
+                Display.displaySendNotificationMenu();
+
+                int choice = takeInt();
+                switch (choice) {
+                    case 1 -> notifyAllCustomers();
+
+                    case 2 -> notifyAllDeliveryPartners();
+
+                    case 0 -> {
+                        success("<--Back");
+                        return ;
+                    }
+                    default -> throw new IllegalArgumentException("Invalid Option Selected.");
+                }
+            } catch (Exception e) {
+                exception(e);
+            }
+        }
+    }
+
+    private void manageDeliveryPartners() {
+        while(true){
+            try {
+                Display.displayManageDeliveryPartnersMenu();
+
+                int choice = takeInt();
+                switch (choice) {
+                    case 1 -> approveDeliveryPartner();
+                    case 2 -> unApproveDeliveryPartner();
+
+                    case 3 -> changeDeliveryPartnerCommission();
+
+                    case 0 -> {
+                        success("<--Back");
+                        return ;
+                    }
+                    default -> throw new IllegalArgumentException("Invalid Option Selected.");
+                }
+            } catch (Exception e) {
+                exception(e);
+            }
+        }
+    }
+
+    private void manageFoodItems(){
+        while(true){
+            try {
+                Display.displayManageFoodItemsMenu();
+
+                int choice = takeInt();
+                switch (choice) {
+                    case 1 -> addNewFoodItem();
+                    case 2 -> removeFoodItem();
+
+                    case 3 -> addNewFoodCategory();
+                    case 4 -> removeFoodCategory();
+
+                    case 5 -> toggleFoodItemAvailability();
+
+                    case 0 -> {
+                        success("<--Back");
+                        return ;
+                    }
+                    default -> throw new IllegalArgumentException("Invalid Option Selected.");
+                }
+            } catch (Exception e) {
+                exception(e);
+            }
+        }
     }
 }

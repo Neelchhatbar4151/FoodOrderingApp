@@ -19,7 +19,7 @@ public class Order {
     private final List<OrderItem> items;
     private String discountDescription;
     private String paymentService;
-    private final String transactionId;
+    private String transactionId;
     private DeliveryPartner deliveryPartner;
     private OrderStatus status;
     private LocalDateTime orderPlacedOn;
@@ -141,6 +141,10 @@ public class Order {
 
     public void setPaymentService(String service){
         paymentService = service;
+    }
+
+    public void setTransactionId(String transactionId){
+        this.transactionId = transactionId;
     }
 
     public Customer getCustomer(){

@@ -7,6 +7,8 @@ import com.tss.Exception.CartContainsUnavailableItemsException;
 import com.tss.Exception.EmptyCartException;
 import com.tss.Exception.ItemNotAvailableException;
 import com.tss.Exception.NoDataFoundException;
+import com.tss.Payment.CashOnDelivery;
+import com.tss.Payment.UPI;
 import com.tss.Repository.FoodItemRepository;
 import com.tss.Repository.InMemoryFoodItemRepository;
 import com.tss.Repository.InMemoryUserRepository;
@@ -18,6 +20,7 @@ import com.tss.model.User.Customer;
 import java.nio.channels.Selector;
 import java.util.List;
 
+import static com.tss.Utils.Constant.inputTaker;
 import static com.tss.Utils.Input.takeInt;
 import static com.tss.Utils.Print.*;
 
@@ -77,11 +80,15 @@ public class CustomerService {
             }
         };
 
+        if(customer.getAddress().isEmpty() || customer.getAddress() == null){
+            info("Enter Your Address: ");
+            String address = inputTaker.nextLine();
+            customer.setAddress(address);
+        }
+
         customer.setNewCart();
         //Created -> Confirmed
         cart.moveToNextState(true);
-
-
 
         performPayment(cart);
 
@@ -95,7 +102,7 @@ public class CustomerService {
 
         OrderService.getInstance().addOrder(cart);
         success("Your Order is Now in Queue...");
-        success("You'll get notified once a delivery partner assigns to your order.");
+        success("You'll get notified once a delivery partner assigns to your order...");
     }
 
     private void performPayment(Order order){
@@ -108,8 +115,8 @@ public class CustomerService {
 
                 int choice = takeInt();
                 switch (choice) {
-                    case 1 -> success("Paid Using UPI");
-                    case 2 -> success("Delivery Partner will take payment upon Delivery.");
+                    case 1 -> new UPI(order);
+                    case 2 -> new CashOnDelivery(order);
                     case 3 -> {
                         //CANCELLED
                         order.moveToNextState(false);
@@ -180,11 +187,11 @@ public class CustomerService {
                     case 2 -> removeItemFromCart();
                     case 3 -> placeOrder();
                     case 4 -> Display.displayOrder(customer.getCart());
-                    case 5 -> failure("Operation Not Supported");
-                    case 6 -> showOrderHistory();
-                    case 7 -> showNewNotifications();
-                    case 8 -> showAllNotifications();
-                    case 9 -> showOnGoingOrders();
+//                    case 5 -> failure("Operation Not Supported");
+                    case 5 -> showOrderHistory();
+                    case 6 -> showNewNotifications();
+                    case 7 -> showAllNotifications();
+                    case 8 -> showOnGoingOrders();
                     case 0 -> {
                         success("<--Back");
                         return;

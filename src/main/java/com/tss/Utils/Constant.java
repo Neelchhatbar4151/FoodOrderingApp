@@ -10,12 +10,13 @@ public class Constant {
     public static int newUserId = 1;
     public static int newOrderId = 1;
     public static double commissionPercentage = 0.1;
+    public static int newUpiTransactionReferenceNumber = 1;
     public static Scanner inputTaker;
     static {
         try {
             File file = new File("input.txt");
-            inputTaker = new Scanner(file);
-//            inputTaker = new Scanner(System.in);
+//            inputTaker = new Scanner(file);
+            inputTaker = new Scanner(System.in);
         } catch (Exception f) {
             System.out.println("File Not Found.");
         }
