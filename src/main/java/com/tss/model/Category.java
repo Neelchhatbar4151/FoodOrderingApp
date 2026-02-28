@@ -1,13 +1,15 @@
 package com.tss.model;
 
-import static com.tss.Utils.Constant.newCategoryId;
+import com.tss.Utils.GlobalVariables;
 
-public class Category {
+import java.io.Serializable;
+
+public class Category implements Serializable {
     public final int id;
     public final String name;
 
     public Category(String name){
-        this.id = newCategoryId++;
+        this.id = GlobalVariables.getInstance().newCategoryId++;
         this.name = name;
     }
 

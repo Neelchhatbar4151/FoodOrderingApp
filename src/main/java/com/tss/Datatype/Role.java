@@ -8,7 +8,9 @@ import com.tss.model.User.Customer;
 import com.tss.model.User.DeliveryPartner;
 import com.tss.model.User.User;
 
-public enum Role {
+import java.io.Serializable;
+
+public enum Role implements Serializable {
 
     CUSTOMER {
         @Override

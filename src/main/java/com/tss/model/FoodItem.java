@@ -1,20 +1,22 @@
 package com.tss.model;
 
 import com.tss.Datatype.AvailabilityStatus;
-import static com.tss.Utils.Constant.newFoodItemId;
+import com.tss.Utils.GlobalVariables;
+
+import java.io.Serializable;
 
 //FoodItem With Builder Pattern
-public class FoodItem {
+public class FoodItem implements Serializable {
     public final int id;
     public final String name, description;
     public final double price;
-    public final Category category;
+    public Category category;
     private AvailabilityStatus availability;
     private final int preparationTime;
     private final int calories;
 
     public FoodItem(Builder builder) {
-        this.id = newFoodItemId++;
+        this.id = GlobalVariables.getInstance().newFoodItemId++;
         this.name = builder.name;
         this.description = builder.description;
         this.price = builder.price;
@@ -39,7 +41,7 @@ public class FoodItem {
                 id,
                 name,
                 price,
-                category.name,
+                (category == null?"-":category.name),
                 availability,
                 (preparationTime == 0?"-":preparationTime),
                 (calories == 0?"-":calories),

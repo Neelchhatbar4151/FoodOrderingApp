@@ -1,6 +1,6 @@
 package com.tss.Utils;
 
-import static com.tss.Utils.Constant.inputTaker;
+import static com.tss.Utils.GlobalVariables.inputTaker;
 
 public class Print {
     public static final String ANSI_BLUE = "\u001B[34m";

@@ -1,18 +1,19 @@
 package com.tss.model;
 
-import static com.tss.Utils.Constant.newNotificationId;
+import com.tss.Utils.GlobalVariables;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 
-public class Notification {
+public class Notification implements Serializable {
     public final long id;
     public final String description;
     public final LocalDateTime timeStamp;
 
+
     public Notification(String description){
-        this.id = newNotificationId++;
+        this.id = GlobalVariables.getInstance().newNotificationId++;
         this.description = description;
         this.timeStamp = LocalDateTime.now();
     }

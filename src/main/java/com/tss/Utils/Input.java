@@ -4,7 +4,7 @@ import java.util.regex.Pattern;
 
 import static com.tss.Utils.Print.exception;
 import static com.tss.Utils.Print.info;
-import static com.tss.Utils.Constant.inputTaker;
+import static com.tss.Utils.GlobalVariables.inputTaker;
 
 public class Input {
 

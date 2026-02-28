@@ -1,27 +1,30 @@
 package com.tss.Service;
 
 import com.tss.Datatype.OrderStatus;
+import com.tss.Repository.InMemoryUserRepository;
 import com.tss.Utils.Display;
 import com.tss.model.Notification;
 import com.tss.model.Order;
 import com.tss.model.User.DeliveryPartner;
 
+import java.io.*;
 import java.util.LinkedList;
+import java.util.Objects;
 import java.util.Queue;
 
 import static com.tss.Utils.Print.success;
 
 //Singleton
-public class OrderService {
+public class OrderService implements Serializable {
 
     private final Queue<Order> orderQueue;
     private final Queue<DeliveryPartner> deliveryPartnerQueue;
 
-    private OrderService(){
+    private static final String filePath = "./Data/queues.ser";
 
+    private OrderService(){
         this.deliveryPartnerQueue = new LinkedList<>();
         this.orderQueue = new LinkedList<>();
-
     }
 
     public void checkQueue(){
@@ -70,11 +73,37 @@ public class OrderService {
     }
 
     static class Initiator{
-        private static final OrderService instance = new OrderService();
+        private static final OrderService instance = load();
+
+        private static OrderService load(){
+            File file = new File(filePath);
+
+            if (!file.exists() || file.length() == 0) {
+                return new OrderService();
+            }
+            try (ObjectInputStream in =
+                         new ObjectInputStream(new FileInputStream(filePath))) {
+
+                OrderService loadedInstance = (OrderService) in.readObject();
+                return Objects.requireNonNullElseGet(loadedInstance, OrderService::new);
+
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     public static OrderService getInstance(){
         return Initiator.instance;
     }
 
+    public void saveState(){
+        try(ObjectOutputStream out =
+                    new ObjectOutputStream(new FileOutputStream(filePath))){
+            out.writeObject(this);
+        }
+        catch (Exception e){
+            throw new RuntimeException(e);
+        }
+    }
 }

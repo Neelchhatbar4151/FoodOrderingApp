@@ -1,6 +1,8 @@
 package com.tss.model;
 
-public class OrderItem {
+import java.io.Serializable;
+
+public class OrderItem implements Serializable {
     public FoodItem foodItem;
     private int quantity;
 

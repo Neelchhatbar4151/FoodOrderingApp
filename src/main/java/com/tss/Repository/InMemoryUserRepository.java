@@ -2,28 +2,28 @@ package com.tss.Repository;
 
 import com.tss.Datatype.Role;
 import com.tss.model.User.Admin;
-import com.tss.model.User.Customer;
-import com.tss.model.User.DeliveryPartner;
 import com.tss.model.User.User;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
 //Singleton
-public class InMemoryUserRepository implements UserRepository {
-
+public class InMemoryUserRepository implements UserRepository, Serializable {
+    private static final String filePath = "./Data/userRepo.ser";
     private final Map<Role, Map<String, User>> users;
 
     private void init(){
-        addNewUser(new Admin("Neel", "9234833295", "ABC"));
+        if(!users.containsKey(Role.ADMIN) || users.get(Role.ADMIN).isEmpty()){
+            addNewUser(new Admin("Neel", "9275098742", "ABC"));
+        }
 
-        addNewUser(new DeliveryPartner("Rohan", "9214238235", "XYZ"));
-        addNewUser(new DeliveryPartner("Mohan", "6236323533", "PQR"));
+//
+//        addNewUser(new DeliveryPartner("Rohan", "9275098745", "XYZ"));
+//        addNewUser(new DeliveryPartner("Dev", "9275098746", "PQR"));
+//
+//        addNewUser(new Customer("Amit", "9275098743", "ABC"));
+//        addNewUser(new Customer("Suresh", "9275098744", "DEF"));
 
-        addNewUser(new Customer("Amit", "9123352655", "ABC"));
-        addNewUser(new Customer("Suresh", "8241532353", "DEF"));
     }
 
     private InMemoryUserRepository(){
@@ -39,7 +39,7 @@ public class InMemoryUserRepository implements UserRepository {
             return null;
         }
         User user = roleSpecificUsers.get(phone);
-        return user.getPassword().equals(password) ? user : null;
+        return user.matchPassword(password) ? user : null;
     }
 
     @Override
@@ -74,10 +74,37 @@ public class InMemoryUserRepository implements UserRepository {
     }
 
     public static class Initiator{
-        private static final InMemoryUserRepository instance = new InMemoryUserRepository();
+        private static final InMemoryUserRepository instance = load();
+        private static InMemoryUserRepository load(){
+            File file = new File(filePath);
+
+            if (!file.exists() || file.length() == 0) {
+                return new InMemoryUserRepository();
+            }
+            try (ObjectInputStream in =
+                         new ObjectInputStream(new FileInputStream(filePath))) {
+
+                InMemoryUserRepository loadedInstance = (InMemoryUserRepository) in.readObject();
+                return Objects.requireNonNullElseGet(loadedInstance, InMemoryUserRepository::new);
+
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     public static InMemoryUserRepository getInstance(){
         return Initiator.instance;
+    }
+
+    public void saveState(){
+        try(ObjectOutputStream out =
+                    new ObjectOutputStream(new FileOutputStream(filePath))){
+            System.out.println(this.getClass().getSimpleName());
+            out.writeObject(this);
+        }
+        catch (Exception e){
+            throw new RuntimeException(e);
+        }
     }
 }

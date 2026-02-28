@@ -1,5 +1,7 @@
 package com.tss.Datatype;
 
-public enum AvailabilityStatus {
+import java.io.Serializable;
+
+public enum AvailabilityStatus implements Serializable {
     NOT_AVAILABLE, AVAILABLE;
 }

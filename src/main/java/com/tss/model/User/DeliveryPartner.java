@@ -7,18 +7,19 @@ import com.tss.Service.OrderService;
 import com.tss.model.Notification;
 import com.tss.model.Order;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.tss.Utils.Constant.commissionPercentage;
-
-public class DeliveryPartner extends User {
+public class DeliveryPartner extends User implements Serializable {
 
     private AvailabilityStatus status;
     public Order assignedOrder;
     private double totalEarnings;
     private final List<Order> deliveredOrders;
     private boolean isApproved;
+
+    public static double commissionPercentage = 0.1;
 
     public DeliveryPartner(String name, String phone, String password) {
         super(name, phone, password, Role.DELIVERY_PARTNER);

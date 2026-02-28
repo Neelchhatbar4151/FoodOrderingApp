@@ -12,11 +12,8 @@ import com.tss.model.Category;
 import com.tss.model.FoodItem;
 import com.tss.model.Notification;
 import com.tss.model.User.DeliveryPartner;
-import com.tss.model.User.User;
 
-import java.util.Collections;
-
-import static com.tss.Utils.Constant.inputTaker;
+import static com.tss.Utils.GlobalVariables.inputTaker;
 import static com.tss.Utils.Input.*;
 import static com.tss.Utils.Print.*;
 
@@ -145,7 +142,13 @@ public class AdminService {
         info("Enter Changed Commission: ");
         double commission = takeDouble();
 
-        Notification notification = new Notification("Commission Per Order Changed to " + (commission/100) + " %.");
+        if(commission < 0 || commission > 100){
+            throw new IllegalArgumentException("Invalid Value.");
+        }
+
+        DeliveryPartner.commissionPercentage = (commission/100);
+
+        Notification notification = new Notification("Commission Per Order Changed to " + (commission) + " %.");
 
         userRepo.getAllUsersInRole(Role.DELIVERY_PARTNER)
                 .forEach((u) -> u.addNotification(notification));

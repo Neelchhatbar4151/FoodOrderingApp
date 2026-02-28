@@ -192,7 +192,7 @@ public class Display {
 
     public static void displayOrderHeading(){
         System.out.printf(
-                "%-8s %-15s %-18s %-25s %-12s %-10s %-12s %-30s %-20s %-25s\n",
+                "%-8s %-15s %-18s %-25s %-12s %-10s %-12s %-30s %-15s %-20s %-25s\n",
                 "OrderID",
                 "Payment",
                 "TransactionID",
@@ -201,11 +201,12 @@ public class Display {
                 "Discount",
                 "Final",
                 "Status",
+                "Customer",
                 "PlacedOn",
                 "DiscountDesc"
         );
 
-        System.out.println("-".repeat(175));
+        System.out.println("-".repeat(190));
     }
 
     public static void displayOrderItemHeading(){
@@ -226,6 +227,7 @@ public class Display {
             return;
         }
         String discountDescription = order.getDiscountDescription();
+        success("Customer: " + order.getCustomer() + " ( " + order.getCustomer().getPhone() + " ) ");
         success("Discount Description: " + (discountDescription == null?"No Discount Applied.":discountDescription));
         Display.displayOrderItemHeading();
 

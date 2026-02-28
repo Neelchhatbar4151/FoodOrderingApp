@@ -1,14 +1,15 @@
 package com.tss.model.User;
 
 import com.tss.Datatype.Role;
+import com.tss.Utils.GlobalVariables;
 import com.tss.model.Notification;
-import static com.tss.Utils.Constant.newUserId;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class User {
+public abstract class User implements Serializable {
     public final int id;
     protected final String name, phone, password;
     protected final List<Notification> notifications;
@@ -17,7 +18,7 @@ public abstract class User {
     public final LocalDate createdOn;
 
     public User(String name, String phone, String password, Role role) {
-        this.id = newUserId++;
+        this.id = GlobalVariables.getInstance().newUserId++;
         this.name = name;
         this.phone = phone;
         this.password = password;
@@ -35,8 +36,8 @@ public abstract class User {
         return phone;
     }
 
-    public String getPassword() {
-        return password;
+    public boolean matchPassword(String password){
+        return this.password.equals(password);
     }
 
     public List<Notification> getOldNotifications() {

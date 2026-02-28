@@ -3,9 +3,11 @@ package com.tss.Payment;
 import com.tss.model.Notification;
 import com.tss.model.Order;
 
+import java.io.Serializable;
+
 import static com.tss.Utils.Print.success;
 
-public class CashOnDelivery implements PaymentMode {
+public class CashOnDelivery implements PaymentMode, Serializable {
     private final Order order;
     public CashOnDelivery(Order order){
         this.order = order;
@@ -14,12 +16,22 @@ public class CashOnDelivery implements PaymentMode {
     @Override
     public void pay() {
         success("Delivery Partner will take payment upon Delivery.");
-        order.setPaymentService("COD");
+        order.setPayment(this);
         notifyCustomer();
     }
 
     @Override
     public void notifyCustomer() {
         order.getCustomer().addNotification(new Notification("Payment Mode Selected as Cash On Delivery, For Amount:  " + order.getFinalAmount() + ", For Order Id: " + order.getId()));
+    }
+
+    @Override
+    public String getName() {
+        return "COD";
+    }
+
+    @Override
+    public String getTransactionReferenceId() {
+        return null;
     }
 }

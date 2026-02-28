@@ -17,10 +17,9 @@ import com.tss.Utils.Display;
 import com.tss.model.*;
 import com.tss.model.User.Customer;
 
-import java.nio.channels.Selector;
 import java.util.List;
 
-import static com.tss.Utils.Constant.inputTaker;
+import static com.tss.Utils.GlobalVariables.inputTaker;
 import static com.tss.Utils.Input.takeInt;
 import static com.tss.Utils.Print.*;
 
@@ -124,7 +123,6 @@ public class CustomerService {
                     }
                     default -> throw new IllegalArgumentException("Invalid Option Selected.");
                 }
-                order.setPaymentService(choice == 1?"UPI":"COD");
                 break;
             }
             catch(Exception e){

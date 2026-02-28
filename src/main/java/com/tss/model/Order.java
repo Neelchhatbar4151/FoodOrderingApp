@@ -1,25 +1,21 @@
 package com.tss.model;
 
 import com.tss.Datatype.OrderStatus;
+import com.tss.Payment.PaymentMode;
+import com.tss.Utils.GlobalVariables;
 import com.tss.model.User.Customer;
 import com.tss.model.User.DeliveryPartner;
 
-import java.time.LocalDate;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import static com.tss.Utils.Constant.newOrderId;
-
-public class Order {
+public class Order implements Serializable {
     private final int id;
     private final List<OrderItem> items;
     private String discountDescription;
-    private String paymentService;
-    private String transactionId;
+    private PaymentMode payment;
     private DeliveryPartner deliveryPartner;
     private OrderStatus status;
     private LocalDateTime orderPlacedOn;
@@ -38,11 +34,10 @@ public class Order {
     }
 
     public Order(Customer customer){
-        this.id = newOrderId++;
+        this.id = GlobalVariables.getInstance().newOrderId++;
         this.items = new ArrayList<>();
         this.discountDescription = null;
-        this.paymentService = null;
-        this.transactionId = null;
+        this.payment = null;
         this.deliveryPartner = null;
         this.status = OrderStatus.CREATED;
         this.orderPlacedOn = null;
@@ -135,12 +130,8 @@ public class Order {
         return orderPlacedOn;
     }
 
-    public void setPaymentService(String service){
-        paymentService = service;
-    }
-
-    public void setTransactionId(String transactionId){
-        this.transactionId = transactionId;
+    public void setPayment(PaymentMode payment){
+        this.payment = payment;
     }
 
     public Customer getCustomer(){
@@ -160,11 +151,12 @@ public class Order {
     public String toString() {
         DateTimeFormatter formatter =
                 DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");
+
         return String.format(
-                "%-8d %-15s %-18s %-25s %-12.2f %-10.2f %-12.2f %-30s %-20s %-25s",
+                "%-8d %-15s %-18s %-25s %-12.2f %-10.2f %-12.2f %-30s %-15s %-20s %-25s",
                 id,
-                (paymentService == null?"-":paymentService),
-                (transactionId == null?"-":transactionId),
+                (payment == null?"-":payment.getName()),
+                (Objects.requireNonNull(payment).getTransactionReferenceId() == null?"-":payment.getTransactionReferenceId()),
                 (deliveryPartner != null?
                 deliveryPartner.getName() + " (" + deliveryPartner.getPhone() + ")":
                 "Not Assigned Yet"),
@@ -172,6 +164,7 @@ public class Order {
                 getDiscount(),
                 getFinalAmount(),
                 status,
+                (customer.getName() + " ( " + customer.getPhone() + " )"),
                 (orderPlacedOn == null?"-":orderPlacedOn.format(formatter)),
                 (discountDescription == null?"-":discountDescription)
         );

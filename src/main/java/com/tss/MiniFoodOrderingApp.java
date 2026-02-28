@@ -4,9 +4,6 @@ import com.tss.Datatype.Role;
 import com.tss.Exception.AuthenticationFailedException;
 import com.tss.Repository.InMemoryUserRepository;
 import com.tss.Repository.UserRepository;
-import com.tss.Service.AdminService;
-import com.tss.Service.CustomerService;
-import com.tss.Service.DeliveryPartnerService;
 import com.tss.Utils.Display;
 import com.tss.model.CurrentUser;
 import com.tss.model.User.*;
@@ -14,7 +11,7 @@ import com.tss.model.User.*;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
-import static com.tss.Utils.Constant.inputTaker;
+import static com.tss.Utils.GlobalVariables.inputTaker;
 import static com.tss.Utils.Input.*;
 import static com.tss.Utils.Print.*;
 

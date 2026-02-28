@@ -1,5 +1,7 @@
 package com.tss.Datatype;
 
-public enum PaymentStatus {
+import java.io.Serializable;
+
+public enum PaymentStatus implements Serializable {
     PENDING, CANCELLED, COMPLETED;
 }
