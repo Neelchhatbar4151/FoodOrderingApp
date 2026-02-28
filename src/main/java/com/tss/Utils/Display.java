@@ -227,7 +227,7 @@ public class Display {
             return;
         }
         String discountDescription = order.getDiscountDescription();
-        success("Customer: " + order.getCustomer() + " ( " + order.getCustomer().getPhone() + " ) ");
+        success("Customer: " + order.getCustomer().getName() + " ( " + order.getCustomer().getPhone() + " ) ");
         success("Discount Description: " + (discountDescription == null?"No Discount Applied.":discountDescription));
         Display.displayOrderItemHeading();
 

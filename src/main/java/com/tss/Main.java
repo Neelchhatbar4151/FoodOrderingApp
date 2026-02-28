@@ -9,9 +9,9 @@ public class Main {
     public static void main(String[] args) {
         new MiniFoodOrderingApp().start();
 
-//        InMemoryUserRepository.getInstance().saveState();
-//        InMemoryFoodItemRepository.getInstance().saveState();
-//        OrderService.getInstance().saveState();
-//        GlobalVariables.getInstance().saveState();
+        InMemoryUserRepository.getInstance().saveState();
+        InMemoryFoodItemRepository.getInstance().saveState();
+        OrderService.getInstance().saveState();
+        GlobalVariables.getInstance().saveState();
     }
 }

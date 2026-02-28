@@ -115,7 +115,7 @@ public class SelectorService {
         FoodItem chosenFoodItem = null;
         while(true) {
             info("Available Food Items In Cart: ");
-            Display.displayFoodItemHeading();
+            Display.displayOrderItemHeading();
             foodItems.forEach((i) -> success(i.toString()));
             info("Enter Food Item Id: ");
             int id = takeInt();

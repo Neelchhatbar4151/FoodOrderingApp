@@ -31,13 +31,13 @@ public class AdminService {
     }
 
     public void addNewFoodItem(){
+        Category chosenCategory = selector.selectFoodCategory();
+
         info("Enter Food Item Name: ");
         String name = inputTaker.nextLine();
 
         info("Enter Food Item Price: ");
         double price = takeDouble();
-
-        Category chosenCategory = selector.selectFoodCategory();
 
         info("Enter Food Item Description: ");
         String description = inputTaker.nextLine();

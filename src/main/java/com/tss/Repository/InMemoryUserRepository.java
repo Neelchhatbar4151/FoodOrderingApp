@@ -100,7 +100,6 @@ public class InMemoryUserRepository implements UserRepository, Serializable {
     public void saveState(){
         try(ObjectOutputStream out =
                     new ObjectOutputStream(new FileOutputStream(filePath))){
-            System.out.println(this.getClass().getSimpleName());
             out.writeObject(this);
         }
         catch (Exception e){

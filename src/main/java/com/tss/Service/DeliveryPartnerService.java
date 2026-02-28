@@ -36,7 +36,7 @@ public class DeliveryPartnerService {
     private void showNewNotifications(){
         List<Notification> notifications = deliveryPartner.getNewNotifications();
         if(notifications.isEmpty()){
-            throw new NoDataFoundException("Notification New Notifications");
+            throw new NoDataFoundException("New Notifications");
         }
         for(Notification n: notifications){
             success(n.toString());
