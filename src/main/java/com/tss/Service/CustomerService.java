@@ -14,6 +14,7 @@ import com.tss.Repository.InMemoryFoodItemRepository;
 import com.tss.Repository.InMemoryUserRepository;
 import com.tss.Repository.UserRepository;
 import com.tss.Utils.Display;
+import com.tss.Utils.GlobalVariables;
 import com.tss.model.*;
 import com.tss.model.User.Customer;
 
@@ -42,7 +43,12 @@ public class CustomerService {
         if(item.getAvailability() == AvailabilityStatus.NOT_AVAILABLE){
             throw new ItemNotAvailableException();
         }
-        customer.addItemToCart(item);
+
+        info("Enter Quantity To Add: ");
+        int quantity = takeInt();
+        if(quantity == 0)
+            throw new IllegalArgumentException("No Food Item Added.");
+        customer.addItemToCart(item, quantity);
         success("Food Item added to cart !");
     }
 
@@ -51,7 +57,11 @@ public class CustomerService {
             FoodItem item = selector.selectFoodItemFromCart(customer.getCart());
 
             try {
-                boolean result = customer.removeItemFromCart(item);
+                info("Enter Quantity To Remove: ");
+                int quantity = takeInt();
+                if(quantity == 0)
+                    throw new IllegalArgumentException("No Food Item Removed.");
+                boolean result = customer.removeItemFromCart(item, quantity);
 
                 if (result) {
                     success("Food Item Successfully Removed !");
@@ -134,11 +144,7 @@ public class CustomerService {
         order.moveToNextState(true);
     }
 
-//    private void cancelOrder(){
-//        customer.
-//    }
-
-    public void showOrderHistory(){
+    private void showOrderHistory(){
         List<Order> orderHistory = customer.getOrderHistory();
         if(orderHistory.isEmpty()){
             throw new NoDataFoundException("Order History");
@@ -147,22 +153,16 @@ public class CustomerService {
         orderHistory.forEach((o) -> success(o.toString()));
     }
 
-    public void showNewNotifications(){
-        List<Notification> notifications = customer.getNewNotifications();
-        if(notifications.isEmpty()){
-            throw new NoDataFoundException("New Notifications");
-        }
-        notifications.forEach((n) -> success(n.toString()));
-    }
-
-    public void showAllNotifications(){
+    public void showNotifications(){
         List<Notification> notifications = customer.getOldNotifications();
-        notifications.addAll(customer.getNewNotifications());
+        List<Notification> newNotifications = customer.getNewNotifications();
 
-        if(notifications.isEmpty()){
+        if(notifications.isEmpty() && newNotifications.isEmpty()){
             throw new NoDataFoundException("Notification History");
         }
-        notifications.forEach((n) -> success(n.toString()));
+
+        notifications.forEach(System.out::println);
+        newNotifications.forEach((n)->success("*" + n.toString()));
     }
 
     private void showOnGoingOrders(){
@@ -172,6 +172,21 @@ public class CustomerService {
         }
         Display.displayOrderHeading();
         orderHistory.forEach((o) -> success(o.toString()));
+    }
+
+    private void showCart(){
+        if(customer.getCart().getTotalAmount() == 0){
+            throw new EmptyCartException();
+        }
+        Display.displayOrder(customer.getCart());
+    }
+
+    private void unsubscribeFromNotifications() {
+        GlobalVariables.getInstance()
+                .customerNotificationChannel
+                .unsubscribe(customer);
+
+        success("Unsubscribed Successfully !");
     }
 
     public void start(){
@@ -184,12 +199,11 @@ public class CustomerService {
                     case 1 -> addItemToCart();
                     case 2 -> removeItemFromCart();
                     case 3 -> placeOrder();
-                    case 4 -> Display.displayOrder(customer.getCart());
-//                    case 5 -> failure("Operation Not Supported");
+                    case 4 -> showCart();
                     case 5 -> showOrderHistory();
-                    case 6 -> showNewNotifications();
-                    case 7 -> showAllNotifications();
-                    case 8 -> showOnGoingOrders();
+                    case 6 -> showNotifications();
+                    case 7 -> showOnGoingOrders();
+                    case 8 -> unsubscribeFromNotifications();
                     case 0 -> {
                         success("<--Back");
                         return;

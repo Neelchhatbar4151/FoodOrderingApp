@@ -102,9 +102,9 @@ public class Display {
             3. Place Order
             4. Show Cart
             5. Show Order History
-            6. Show New Notifications
-            7. Show All Notifications
-            8. Show On Going Orders
+            6. Show Notifications
+            7. Show On Going Orders
+            8. Unsubscribe From Notifications
             0.  Go Back
             ===================================================
             Enter your choice:""");
@@ -115,10 +115,11 @@ public class Display {
         info("""
             ================== Delivery Partner MENU ==================
             1. Complete Order Delivery
-            2. Get Total Earnings
-            3. Show Orders Delivered
-            4. Show New Notifications
-            5. Show All Notifications
+            2. Show Assigned Order
+            3. Get Total Earnings
+            4. Show Orders Delivered
+            5. Show Notifications
+            6. Unsubscribe From Notifications
             0.  Go Back
             ===========================================================
             Enter your choice:""");
@@ -212,6 +213,7 @@ public class Display {
             return;
         }
         String discountDescription = order.getDiscountDescription();
+        success("Order Id: " + order.getId());
         success("Customer: " + order.getCustomer().getName() + " ( " + order.getCustomer().getPhone() + " ) ");
         success("Discount Description: " + (discountDescription == null?"No Discount Applied.":discountDescription));
         Display.displayOrderItemHeading();

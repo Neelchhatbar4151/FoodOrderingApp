@@ -3,6 +3,7 @@ package com.tss.Service;
 
 import com.tss.Exception.NoDataFoundException;
 import com.tss.Utils.Display;
+import com.tss.Utils.GlobalVariables;
 import com.tss.model.CurrentUser;
 import com.tss.model.Notification;
 import com.tss.model.Order;
@@ -10,6 +11,7 @@ import com.tss.model.User.DeliveryPartner;
 
 import java.util.List;
 
+import static com.tss.Utils.Input.takeBoolean;
 import static com.tss.Utils.Input.takeInt;
 import static com.tss.Utils.Print.*;
 import static com.tss.Utils.Print.exception;
@@ -33,41 +35,47 @@ public class DeliveryPartnerService {
         }
     }
 
-    private void showNewNotifications(){
-        List<Notification> notifications = deliveryPartner.getNewNotifications();
-        if(notifications.isEmpty()){
-            throw new NoDataFoundException("New Notifications");
-        }
-        for(Notification n: notifications){
-            success(n.toString());
-        }
-    }
-
-    private void showAllNotifications(){
+    private void showNotifications(){
         List<Notification> notifications = deliveryPartner.getOldNotifications();
-        notifications.addAll(deliveryPartner.getNewNotifications());
+        List<Notification> newNotifications = (deliveryPartner.getNewNotifications());
 
-        if(notifications.isEmpty()){
+        if(notifications.isEmpty() && newNotifications.isEmpty()){
             throw new NoDataFoundException("Notification History");
         }
-        for(Notification n: notifications){
-            success(n.toString());
+
+        notifications.forEach(System.out::println);
+        newNotifications.forEach((n)->success("*" + n.toString()));
+    }
+
+    private void showAssignedOrder(){
+        if(deliveryPartner.getAssignedOrder() == null){
+            throw new IllegalStateException("No Order Assigned.");
         }
+
+        Display.displayOrder(deliveryPartner.getAssignedOrder());
     }
 
     private void completeDelivery() {
-        boolean result = deliveryPartner.completeDelivery();
+        showAssignedOrder();
 
-        if(!result){
-            failure("Order is Not assigned Yet !");
-            return ;
+        info("Confirm ?(y/n): ");
+        boolean confirm = takeBoolean();
+
+        if(confirm){
+            deliveryPartner.completeDelivery();
+            success("Order Delivered Successfully !");
         }
-
-        success("Order Delivered Successfully !");
     }
 
     private void getTotalEarnings(){
         success("Your Total Earnings: " + deliveryPartner.getTotalEarnings());
+    }
+
+    private void unsubscribeFromNotifications() {
+        GlobalVariables.getInstance()
+                .deliveryPartnerNotificationChannel
+                .unsubscribe(deliveryPartner);
+        success("Unsubscribed Successfully !");
     }
 
     public void start(){
@@ -77,12 +85,12 @@ public class DeliveryPartnerService {
 
                 int choice = takeInt();
                 switch (choice) {
-//                    case 1 -> failure("Operation not supported.");
                     case 1 -> completeDelivery();
-                    case 2 -> getTotalEarnings();
-                    case 3 -> showDeliveredOrders();
-                    case 4 -> showNewNotifications();
-                    case 5 -> showAllNotifications();
+                    case 2 -> showAssignedOrder();
+                    case 3 -> getTotalEarnings();
+                    case 4 -> showDeliveredOrders();
+                    case 5 -> showNotifications();
+                    case 6 -> unsubscribeFromNotifications();
                     case 0 -> {
                         success("<--Back");
                         return;

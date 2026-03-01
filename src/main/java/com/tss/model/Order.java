@@ -61,22 +61,22 @@ public class Order {
         return true;
     }
 
-    public void addItem(FoodItem item){
+    public void addItem(FoodItem item, int quantity){
         for(OrderItem orderItem: items){
             if(orderItem.foodItem == item){
-                orderItem.increaseQuantity();
+                orderItem.increaseQuantity(quantity);
                 return;
             }
         }
-        items.add(new OrderItem(item));
+        items.add(new OrderItem(item, quantity));
     }
 
-    public boolean removeItem(FoodItem item){
-        boolean result = true;
+    public boolean removeItem(FoodItem item, int quantity){
+        boolean result = false;
         OrderItem tempOrderItem = null;
         for(OrderItem orderItem: items){
             if(orderItem.foodItem == item){
-                result = orderItem.decreaseQuantity();
+                result = orderItem.decreaseQuantity(quantity);
                 tempOrderItem = orderItem;
                 break;
             }
@@ -86,7 +86,7 @@ public class Order {
             return false;
         }
 
-        if(!result){
+        if(result){
             items.remove(tempOrderItem);
         }
 

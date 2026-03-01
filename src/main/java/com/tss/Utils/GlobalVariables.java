@@ -1,20 +1,13 @@
 package com.tss.Utils;
 
+import com.tss.Subject.NotificationChannel;
+
 import java.io.*;
 import java.util.Scanner;
 
 public class GlobalVariables {
 
-    public static Scanner inputTaker;
-    static {
-        try {
-            File file = new File("input.txt");
-//            inputTaker = new Scanner(file);
-            inputTaker = new Scanner(System.in);
-        } catch (Exception f) {
-            System.out.println("File Not Found.");
-        }
-    }
+    public static Scanner inputTaker = new Scanner(System.in);
 
     public int newOrderId = 1;
     public int newFoodItemId = 1;
@@ -22,6 +15,8 @@ public class GlobalVariables {
     public int newCategoryId = 1;
     public int newUserId = 1;
 
+    public NotificationChannel customerNotificationChannel = new NotificationChannel();
+    public NotificationChannel deliveryPartnerNotificationChannel = new NotificationChannel();
 
     private GlobalVariables(){}
 

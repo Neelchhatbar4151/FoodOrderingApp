@@ -8,6 +8,7 @@ import com.tss.Repository.InMemoryFoodItemRepository;
 import com.tss.Repository.InMemoryUserRepository;
 import com.tss.Repository.UserRepository;
 import com.tss.Utils.Display;
+import com.tss.Utils.GlobalVariables;
 import com.tss.model.Category;
 import com.tss.model.FoodItem;
 import com.tss.model.Notification;
@@ -30,7 +31,7 @@ public class AdminService {
         this.selector = new SelectorService();
     }
 
-    public void addNewFoodItem(){
+    private void addNewFoodItem(){
         Category chosenCategory = selector.selectFoodCategory();
 
         info("Enter Food Item Name: ");
@@ -58,7 +59,7 @@ public class AdminService {
         success(newItem.name + " Successfully Added !");
     }
 
-    public void addNewFoodCategory(){
+    private void addNewFoodCategory(){
         info("Enter Category Name: ");
         String name = inputTaker.nextLine();
 
@@ -69,7 +70,7 @@ public class AdminService {
         success(newCategory.name + " Category Successfully Added !");
     }
 
-    public void removeFoodItem(){
+    private void removeFoodItem(){
         FoodItem item = selector.selectFoodItem();
         if(item == null) return;
 
@@ -77,7 +78,7 @@ public class AdminService {
         success("Item Successfully Removed !");
     }
 
-    public void removeFoodCategory(){
+    private void removeFoodCategory(){
         Category category = selector.selectFoodCategory();
         if(category == null) return;
 
@@ -85,7 +86,7 @@ public class AdminService {
         success("Category Successfully Removed !");
     }
 
-    public void toggleFoodItemAvailability(){
+    private void toggleFoodItemAvailability(){
         FoodItem item = selector.selectFoodItem();
         if(item == null) return;
 
@@ -96,44 +97,55 @@ public class AdminService {
         success("Food Item Availability Altered !");
     }
 
-    public void approveDeliveryPartner(){
+    private void approveDeliveryPartner(){
         DeliveryPartner deliveryPartner = selector.selectDeliveryPartner();
         if(deliveryPartner == null) return;
+
+        if(deliveryPartner.getIsApproved()){
+            throw new IllegalStateException("This delivery partner is already approved.");
+        }
 
         deliveryPartner.addNotification(new Notification("You've Been approved as a Delivery Partner, Now the orders can be assigned to you..."));
         deliveryPartner.setIsApproved(true);
         success("Approved Successfully !");
     }
 
-    public void unApproveDeliveryPartner(){
+    private void unApproveDeliveryPartner(){
         DeliveryPartner deliveryPartner = selector.selectDeliveryPartner();
         if(deliveryPartner == null) return;
+
+        if(!deliveryPartner.getIsApproved()){
+            throw new IllegalStateException("This delivery partner is already not approved.");
+        }
 
         deliveryPartner.setIsApproved(false);
         deliveryPartner.addNotification(new Notification("You've Been unapproved as a Delivery Partner, Now the orders can't be assigned to you..."));
         success("Unapproved Successfully !");
     }
 
-    public void notifyAllCustomers(){
+    private Notification takeNotification(){
         info("Enter Message: ");
         String msg = inputTaker.nextLine();
 
-        Notification notification = new Notification(msg);
+        return new Notification(msg);
+    }
 
-        userRepo.getAllUsersInRole(Role.CUSTOMER)
-                .forEach((u) -> u.addNotification(notification));
+    private void notifyAllCustomers(){
+        Notification notification = takeNotification();
+
+        GlobalVariables.getInstance()
+                .customerNotificationChannel
+                .notifyObservers(notification);
 
         success("Notification sent to all Customers");
     }
 
-    public void notifyAllDeliveryPartners(){
-        info("Enter Message: ");
-        String msg = inputTaker.nextLine();
+    private void notifyAllDeliveryPartners(){
+        Notification notification = takeNotification();
 
-        Notification notification = new Notification(msg);
-
-        userRepo.getAllUsersInRole(Role.DELIVERY_PARTNER)
-                .forEach((u) -> u.addNotification(notification));
+        GlobalVariables.getInstance()
+                .deliveryPartnerNotificationChannel
+                .notifyObservers(notification);
 
         success("Notification sent to all Delivery Partners");
     }

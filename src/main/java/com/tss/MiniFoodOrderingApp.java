@@ -95,9 +95,8 @@ public class MiniFoodOrderingApp {
                 failure("X-- Closing App");
                 return false;
             }
-            default -> {
-                throw new IllegalArgumentException("Invalid Option Selected.");
-            }
+            default -> throw new IllegalArgumentException("Invalid Option Selected.");
+
         }
 
         //Clearing current user session

@@ -2,13 +2,15 @@ package com.tss.model.User;
 
 import com.tss.Datatype.OrderStatus;
 import com.tss.Datatype.Role;
+import com.tss.Observer.NotificationObserver;
+import com.tss.Utils.GlobalVariables;
 import com.tss.model.FoodItem;
 import com.tss.model.Order;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Customer extends User {
+public class Customer extends User implements NotificationObserver {
 
     private final List<Order> orderList;
     private String upiId;
@@ -21,14 +23,17 @@ public class Customer extends User {
         this.upiId = "";
         this.cart = new Order(this);
         this.address = "";
+        GlobalVariables.getInstance()
+                .customerNotificationChannel
+                .subscribe(this);
     }
 
-    public void addItemToCart(FoodItem item){
-        cart.addItem(item);
+    public void addItemToCart(FoodItem item, int quantity){
+        cart.addItem(item, quantity);
     }
 
-    public boolean removeItemFromCart(FoodItem item){
-        return cart.removeItem(item);
+    public boolean removeItemFromCart(FoodItem item, int quantity){
+        return cart.removeItem(item, quantity);
     }
 
     public List<Order> getOrderHistory(){
