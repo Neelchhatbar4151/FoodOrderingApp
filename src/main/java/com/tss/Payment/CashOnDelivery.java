@@ -3,11 +3,9 @@ package com.tss.Payment;
 import com.tss.model.Notification;
 import com.tss.model.Order;
 
-import java.io.Serializable;
-
 import static com.tss.Utils.Print.success;
 
-public class CashOnDelivery implements PaymentMode, Serializable {
+public class CashOnDelivery implements PaymentMode {
     private final Order order;
     public CashOnDelivery(Order order){
         this.order = order;

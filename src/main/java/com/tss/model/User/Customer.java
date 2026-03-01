@@ -5,11 +5,10 @@ import com.tss.Datatype.Role;
 import com.tss.model.FoodItem;
 import com.tss.model.Order;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Customer extends User implements Serializable {
+public class Customer extends User {
 
     private final List<Order> orderList;
     private String upiId;

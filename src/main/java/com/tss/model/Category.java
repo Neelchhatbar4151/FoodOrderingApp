@@ -2,9 +2,7 @@ package com.tss.model;
 
 import com.tss.Utils.GlobalVariables;
 
-import java.io.Serializable;
-
-public class Category implements Serializable {
+public class Category {
     public final int id;
     public final String name;
 

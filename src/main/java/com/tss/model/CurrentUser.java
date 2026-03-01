@@ -1,6 +1,5 @@
 package com.tss.model;
 
-import com.tss.Datatype.Role;
 import com.tss.model.User.User;
 
 //Singleton Class

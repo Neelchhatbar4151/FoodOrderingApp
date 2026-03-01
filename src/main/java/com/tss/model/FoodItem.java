@@ -3,10 +3,8 @@ package com.tss.model;
 import com.tss.Datatype.AvailabilityStatus;
 import com.tss.Utils.GlobalVariables;
 
-import java.io.Serializable;
-
 //FoodItem With Builder Pattern
-public class FoodItem implements Serializable {
+public class FoodItem {
     public final int id;
     public final String name, description;
     public final double price;

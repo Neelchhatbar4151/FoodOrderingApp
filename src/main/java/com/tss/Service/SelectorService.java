@@ -15,7 +15,6 @@ import com.tss.model.OrderItem;
 import com.tss.model.User.DeliveryPartner;
 import com.tss.model.User.User;
 
-import java.util.Collections;
 import java.util.List;
 
 import static com.tss.Utils.Input.takeInt;

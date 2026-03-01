@@ -2,9 +2,7 @@ package com.tss.model.User;
 
 import com.tss.Datatype.Role;
 
-import java.io.Serializable;
-
-public class Admin extends User implements Serializable {
+public class Admin extends User {
     public Admin(String name, String phone, String password) {
         super(name, phone, password, Role.ADMIN);
     }

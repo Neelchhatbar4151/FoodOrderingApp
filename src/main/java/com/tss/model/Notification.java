@@ -2,11 +2,10 @@ package com.tss.model;
 
 import com.tss.Utils.GlobalVariables;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class Notification implements Serializable {
+public class Notification {
     public final long id;
     public final String description;
     public final LocalDateTime timeStamp;

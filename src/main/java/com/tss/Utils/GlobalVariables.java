@@ -1,13 +1,9 @@
 package com.tss.Utils;
 
-import com.tss.Repository.InMemoryUserRepository;
-
 import java.io.*;
-import java.util.Objects;
 import java.util.Scanner;
 
-public class GlobalVariables implements Serializable {
-    private static final String filePath = "./Data/globalVariables.ser";
+public class GlobalVariables {
 
     public static Scanner inputTaker;
     static {
@@ -30,36 +26,11 @@ public class GlobalVariables implements Serializable {
     private GlobalVariables(){}
 
     private static class Initiator{
-        private static final GlobalVariables instance = load();
-        private static GlobalVariables load(){
-            File file = new File(filePath);
-
-            if (!file.exists() || file.length() == 0) {
-                return new GlobalVariables();
-            }
-            try (ObjectInputStream in =
-                         new ObjectInputStream(new FileInputStream(filePath))) {
-
-                GlobalVariables loadedInstance = (GlobalVariables) in.readObject();
-                return Objects.requireNonNullElseGet(loadedInstance, GlobalVariables::new);
-
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
+        private static final GlobalVariables instance = new GlobalVariables();
     }
 
     public static GlobalVariables getInstance(){
         return Initiator.instance;
     }
 
-    public void saveState(){
-        try(ObjectOutputStream out =
-                    new ObjectOutputStream(new FileOutputStream(filePath))){
-            out.writeObject(this);
-        }
-        catch (Exception e){
-            throw new RuntimeException(e);
-        }
-    }
 }

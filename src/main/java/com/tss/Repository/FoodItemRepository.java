@@ -4,10 +4,9 @@ import com.tss.Datatype.AvailabilityStatus;
 import com.tss.model.Category;
 import com.tss.model.FoodItem;
 
-import java.io.Serializable;
 import java.util.List;
 
-public interface FoodItemRepository extends Serializable {
+public interface FoodItemRepository {
     void addFoodItem(FoodItem item);
     boolean removeFoodItem(int id);
     FoodItem getFoodItemById(int id);

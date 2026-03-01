@@ -7,11 +7,10 @@ import com.tss.Service.OrderService;
 import com.tss.model.Notification;
 import com.tss.model.Order;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DeliveryPartner extends User implements Serializable {
+public class DeliveryPartner extends User {
 
     private AvailabilityStatus status;
     public Order assignedOrder;

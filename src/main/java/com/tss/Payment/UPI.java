@@ -4,13 +4,11 @@ import com.tss.model.Notification;
 import com.tss.model.Order;
 import com.tss.model.User.Customer;
 
-import java.io.Serializable;
-
 import static com.tss.Utils.GlobalVariables.inputTaker;
 import static com.tss.Utils.Print.info;
 import static com.tss.Utils.Print.success;
 
-public class UPI implements PaymentMode, Serializable {
+public class UPI implements PaymentMode {
     private final Order order;
     private final int transactionReferenceId ;
 

@@ -4,12 +4,11 @@ import com.tss.Datatype.Role;
 import com.tss.Utils.GlobalVariables;
 import com.tss.model.Notification;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class User implements Serializable {
+public abstract class User {
     public final int id;
     protected final String name, phone, password;
     protected final List<Notification> notifications;

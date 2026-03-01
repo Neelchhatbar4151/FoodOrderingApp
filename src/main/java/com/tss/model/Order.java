@@ -6,12 +6,11 @@ import com.tss.Utils.GlobalVariables;
 import com.tss.model.User.Customer;
 import com.tss.model.User.DeliveryPartner;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-public class Order implements Serializable {
+public class Order {
     private final int id;
     private final List<OrderItem> items;
     private String discountDescription;

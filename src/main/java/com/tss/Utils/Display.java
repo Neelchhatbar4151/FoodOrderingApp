@@ -3,26 +3,11 @@ package com.tss.Utils;
 import com.tss.model.Order;
 import com.tss.model.OrderItem;
 
-import java.util.List;
-
 import static com.tss.Utils.Print.*;
 
 public class Display {
     private Display(){}
 
-//    public static void displayAdminMenu() {
-//        info("""
-//            ================== ADMIN MENU ==================
-//            6.  Create New Discount (NS)
-//            7.  Create New Flat Discount (NS)
-//            8.  Create New Percentage Discount (NS)
-//            9.  Create New Festival Discount (NS)
-//            12. Notify All Customers
-//            13. Notify All Delivery Partners
-//            0.  Go Back
-//            ================================================
-//            Enter your choice:""");
-//    }
     public static void displayAdminMenu() {
         info("""
                 ================== ADMIN MENU ==================
