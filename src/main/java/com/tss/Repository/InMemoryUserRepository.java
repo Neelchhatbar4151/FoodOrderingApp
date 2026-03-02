@@ -14,16 +14,13 @@ public class InMemoryUserRepository implements UserRepository {
     private final Map<Role, Map<String, User>> users;
 
     private void init(){
-        if(!users.containsKey(Role.ADMIN) || users.get(Role.ADMIN).isEmpty()){
-            addNewUser(new Admin("Neel", "9275098742", "ABC"));
-        }
+        addNewUser(new Admin("Neel", "6666666666", "6666"));
 
+        addNewUser(new Customer("Amit", "8888888881", "8881"));
+        addNewUser(new Customer("Suresh", "8888888882", "8882"));
 
-        addNewUser(new DeliveryPartner("Rohan", "9275098745", "XYZ"));
-        addNewUser(new DeliveryPartner("Dev", "9275098746", "PQR"));
-
-        addNewUser(new Customer("Amit", "9275098743", "ABC"));
-        addNewUser(new Customer("Suresh", "9275098744", "DEF"));
+        addNewUser(new DeliveryPartner("Rohan", "7777777771", "7771"));
+        addNewUser(new DeliveryPartner("Dev", "7777777772", "7772"));
 
     }
 

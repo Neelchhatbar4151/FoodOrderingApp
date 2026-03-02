@@ -1,10 +1,10 @@
 package com.tss.Utils;
 
+import java.util.InputMismatchException;
 import java.util.regex.Pattern;
 
-import static com.tss.Utils.Print.exception;
-import static com.tss.Utils.Print.info;
 import static com.tss.Utils.GlobalVariables.inputTaker;
+import static com.tss.Utils.Print.*;
 
 public class Input {
 

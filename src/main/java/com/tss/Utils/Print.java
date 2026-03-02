@@ -17,8 +17,9 @@ public class Print {
         System.out.println(ANSI_BLUE + msg + ANSI_RESET);
     }
     public static void exception(Exception e){
-        failure(e.getClass().getSimpleName());
-        failure("Message: " + (e.getMessage() != null?e.getMessage():"No Message."));
+//        failure(e.getClass().getSimpleName());
+        failure("[ERROR] " + (e.getMessage() != null?e.getMessage():"Invalid."));
+//        failure(e.getMessage());
         System.out.println("Press Enter to Continue...");
         inputTaker.nextLine();
     }

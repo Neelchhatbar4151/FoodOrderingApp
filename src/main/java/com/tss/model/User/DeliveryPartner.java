@@ -3,14 +3,16 @@ package com.tss.model.User;
 import com.tss.Datatype.AvailabilityStatus;
 import com.tss.Datatype.Role;
 import com.tss.Exception.DeliveryPartnerIsBusyException;
+import com.tss.Observer.NotificationObserver;
 import com.tss.Service.OrderService;
+import com.tss.Utils.GlobalVariables;
 import com.tss.model.Notification;
 import com.tss.model.Order;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DeliveryPartner extends User {
+public class DeliveryPartner extends User implements NotificationObserver {
 
     private AvailabilityStatus status;
     public Order assignedOrder;
@@ -29,6 +31,10 @@ public class DeliveryPartner extends User {
         this.deliveredOrders = new ArrayList<>();
 
         addNotification(new Notification("You're Currently Not Approved as a Delivery partner, once Admin approves your account, you'll be eligible to deliver orders."));
+
+        GlobalVariables.getInstance()
+                .deliveryPartnerNotificationChannel
+                .subscribe(this);
     }
 
     public void assignOrder(Order order) {
@@ -70,8 +76,10 @@ public class DeliveryPartner extends User {
         }
         if(state){
             isApproved = true;
+
             //Registering Delivery Partner in Queue
-            OrderService.getInstance().addDeliveryPartner(this);
+            if(status != AvailabilityStatus.NOT_AVAILABLE)
+                OrderService.getInstance().addDeliveryPartner(this);
         }
         else{
             isApproved = false;
@@ -81,6 +89,14 @@ public class DeliveryPartner extends User {
 
     public double getTotalEarnings() {
         return totalEarnings;
+    }
+
+    public boolean getIsApproved(){
+        return isApproved;
+    }
+
+    public Order getAssignedOrder() {
+        return assignedOrder;
     }
 
     @Override

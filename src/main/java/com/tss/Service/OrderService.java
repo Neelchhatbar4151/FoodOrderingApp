@@ -23,7 +23,7 @@ public class OrderService  {
         this.orderQueue = new LinkedList<>();
     }
 
-    public void checkQueue(){
+    private void checkQueue(){
         while(!deliveryPartnerQueue.isEmpty() && !orderQueue.isEmpty()){
             Order order = orderQueue.poll();
             if(order.getStatus() != OrderStatus.WAITING_FOR_DELIVERY_PARTNER){
