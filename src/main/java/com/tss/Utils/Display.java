@@ -30,7 +30,7 @@ public class Display {
                 3. Add New Food Category
                 4. Remove Food Category
                 
-                5. Toggle Food Item Availability
+                5. Change Food Item Availability
                 
                 0. Go Back
                 =======================================================

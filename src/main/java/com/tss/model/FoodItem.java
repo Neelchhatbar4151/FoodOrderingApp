@@ -8,8 +8,8 @@ public class FoodItem {
     public final int id;
     public final String name, description;
     public final double price;
-    public Category category;
-    private AvailabilityStatus availability;
+    private boolean availability;
+    private final int category_id;
     private final int preparationTime;
     private final int calories;
 
@@ -18,17 +18,16 @@ public class FoodItem {
         this.name = builder.name;
         this.description = builder.description;
         this.price = builder.price;
-        this.category = builder.category;
         this.availability = builder.availability;
         this.preparationTime = builder.preparationTime;
         this.calories = builder.calories;
     }
 
-    public void setAvailability(AvailabilityStatus availability){
+    public void setAvailability(boolean availability){
         this.availability = availability;
     }
 
-    public AvailabilityStatus getAvailability(){
+    public boolean getAvailability(){
         return availability;
     }
 
@@ -39,7 +38,6 @@ public class FoodItem {
                 id,
                 name,
                 price,
-                (category == null?"-":category.name),
                 availability,
                 (preparationTime == 0?"-":preparationTime),
                 (calories == 0?"-":calories),
@@ -52,7 +50,7 @@ public class FoodItem {
         // Required fields
         private final String name;
         private final double price;
-        private final Category category;
+        private final int category_id;
 
         // Optional fields
         private String description = "";

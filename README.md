@@ -1,0 +1,11 @@
+## Demo Users 
+
+ADMIN: ("Neel", "6666666666", "6666")
+
+CUSTOMER: ("Amit", "8888888881", "8881")
+
+CUSTOMER: ("Suresh", "8888888882", "8882")
+
+DELIVERY PARTNER: ("Rohan", "7777777771", "7771")
+
+DELIVERY PARTNER: ("Dev", "7777777772", "7772")

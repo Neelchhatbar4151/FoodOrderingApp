@@ -1,12 +1,12 @@
-package com.tss.Repository;
+package com.tss.Repository.concrete;
 
 import com.tss.Datatype.Role;
+import com.tss.Repository.UserRepository;
 import com.tss.model.User.Admin;
 import com.tss.model.User.Customer;
 import com.tss.model.User.DeliveryPartner;
 import com.tss.model.User.User;
 
-import java.io.*;
 import java.util.*;
 
 //Singleton

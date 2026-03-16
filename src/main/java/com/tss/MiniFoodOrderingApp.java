@@ -2,7 +2,7 @@ package com.tss;
 
 import com.tss.Datatype.Role;
 import com.tss.Exception.AuthenticationFailedException;
-import com.tss.Repository.InMemoryUserRepository;
+import com.tss.Repository.concrete.InMemoryUserRepository;
 import com.tss.Repository.UserRepository;
 import com.tss.Utils.Display;
 import com.tss.model.CurrentUser;

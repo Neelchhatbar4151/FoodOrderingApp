@@ -9,8 +9,7 @@ public class Notification {
     public final long id;
     public final String description;
     public final LocalDateTime timeStamp;
-
-
+    
     public Notification(String description){
         this.id = GlobalVariables.getInstance().newNotificationId++;
         this.description = description;

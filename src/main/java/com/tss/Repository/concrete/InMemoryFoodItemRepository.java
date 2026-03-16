@@ -1,14 +1,14 @@
-package com.tss.Repository;
+package com.tss.Repository.concrete;
 
 import com.tss.Datatype.AvailabilityStatus;
+import com.tss.Repository.FoodItemRepository;
 import com.tss.model.Category;
 import com.tss.model.FoodItem;
 
-import java.io.*;
 import java.util.*;
 
 //Singleton
-public class InMemoryFoodItemRepository implements FoodItemRepository{
+public class InMemoryFoodItemRepository implements FoodItemRepository {
 
     private final Map<Integer, FoodItem> foodItems;
     private final Map<Integer, Category> foodCategories;
@@ -16,12 +16,38 @@ public class InMemoryFoodItemRepository implements FoodItemRepository{
     private void init(){
         addFoodCategory(new Category("CHINESE"));
         addFoodCategory(new Category("FASTFOOD"));
+        addFoodCategory(new Category("SOUTH_INDIAN"));
+        addFoodCategory(new Category("PUNJABI"));
+        addFoodCategory(new Category("GUJARATI"));
+        addFoodCategory(new Category("CONTINENTAL"));
+        addFoodCategory(new Category("SEAFOOD"));
+        addFoodCategory(new Category("VEGAN"));
+        addFoodCategory(new Category("DESSERTS"));
+        addFoodCategory(new Category("BAKERY"));
+        addFoodCategory(new Category("BEVERAGES"));
+        addFoodCategory(new Category("STREET_FOOD"));
+        addFoodCategory(new Category("HEALTHY"));
+        addFoodCategory(new Category("SNACKS"));
 
-        addFoodItem(new FoodItem.Builder("MOMOS", 149.99, foodCategories.get(1)).build());
-        addFoodItem(new FoodItem.Builder("NOODLES", 99.99, foodCategories.get(1)).build());
+        addFoodItem(new FoodItem.Builder("MOMOS", 149.99, foodCategories.get(1))
+                .preparationTime(10)
+                .description("Steamed Momos")
+                .calories(250)
+                .build());
 
-        addFoodItem(new FoodItem.Builder("BURGER", 119.99, foodCategories.get(2)).build());
-        addFoodItem(new FoodItem.Builder("PIZZA", 199.99, foodCategories.get(2)).build());
+        addFoodItem(new FoodItem.Builder("NOODLES", 99.99, foodCategories.get(1))
+                .preparationTime(15)
+                .calories(400)
+                .build());
+
+        addFoodItem(new FoodItem.Builder("BURGER", 119.99, foodCategories.get(2))
+                .preparationTime(10)
+                .build());
+
+        addFoodItem(new FoodItem.Builder("CHEESE PIZZA", 199.99, foodCategories.get(2))
+                .preparationTime(20)
+                .calories(850)
+                .build());
     }
 
     private InMemoryFoodItemRepository(){

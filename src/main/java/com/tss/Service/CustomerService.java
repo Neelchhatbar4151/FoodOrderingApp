@@ -9,10 +9,6 @@ import com.tss.Exception.ItemNotAvailableException;
 import com.tss.Exception.NoDataFoundException;
 import com.tss.Payment.CashOnDelivery;
 import com.tss.Payment.UPI;
-import com.tss.Repository.FoodItemRepository;
-import com.tss.Repository.InMemoryFoodItemRepository;
-import com.tss.Repository.InMemoryUserRepository;
-import com.tss.Repository.UserRepository;
 import com.tss.Utils.Display;
 import com.tss.Utils.GlobalVariables;
 import com.tss.model.*;
@@ -26,15 +22,11 @@ import static com.tss.Utils.Print.*;
 
 public class CustomerService {
 
-    private final UserRepository userRepo;
     private final Customer customer;
-    private final FoodItemRepository foodRepo;
     private final SelectorService selector;
 
     public CustomerService(){
         customer = (Customer) CurrentUser.getInstance().getUser();
-        this.foodRepo = InMemoryFoodItemRepository.getInstance();
-        this.userRepo = InMemoryUserRepository.getInstance();
         this.selector = new SelectorService();
     }
 
@@ -87,7 +79,7 @@ public class CustomerService {
             if( item.foodItem.getAvailability() == AvailabilityStatus.NOT_AVAILABLE ) {
                 throw new CartContainsUnavailableItemsException();
             }
-        };
+        }
 
         if(customer.getAddress().isEmpty() || customer.getAddress() == null){
             info("Enter Your Address: ");
