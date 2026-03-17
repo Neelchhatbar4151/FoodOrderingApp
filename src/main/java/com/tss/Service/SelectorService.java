@@ -4,10 +4,9 @@ import com.tss.Datatype.Role;
 import com.tss.Exception.EmptyCartException;
 import com.tss.Exception.NoDataFoundException;
 import com.tss.Repository.FoodItemRepository;
-import com.tss.Repository.InMemoryFoodItemRepository;
-import com.tss.Repository.InMemoryUserRepository;
 import com.tss.Repository.UserRepository;
 import com.tss.Utils.Display;
+import com.tss.Utils.GlobalVariables;
 import com.tss.model.Category;
 import com.tss.model.FoodItem;
 import com.tss.model.Order;
@@ -27,8 +26,8 @@ public class SelectorService {
     private final FoodItemRepository foodRepo;
 
     public SelectorService(){
-        this.userRepo = InMemoryUserRepository.getInstance();
-        this.foodRepo = InMemoryFoodItemRepository.getInstance();
+        this.userRepo = GlobalVariables.getInstance().userRepository;
+        this.foodRepo = GlobalVariables.getInstance().foodItemRepository;
     }
 
     public Category selectFoodCategory(){
