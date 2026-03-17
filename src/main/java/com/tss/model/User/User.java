@@ -53,4 +53,24 @@ public abstract class User {
         indexOfNewNotification = notifications.size();
         return newNotifications;
     }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public Object getCreatedOn() {
+        return createdOn;
+    }
+
+    public void setId(long generatedId) {
+        this.id = generatedId;
+    }
+
+    public long getId() {
+        return id;
+    }
 }

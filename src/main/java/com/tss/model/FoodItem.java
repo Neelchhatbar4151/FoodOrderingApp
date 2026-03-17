@@ -10,8 +10,8 @@ public class FoodItem {
     public final double price;
     public Category category;
     private AvailabilityStatus availability;
-    private final int preparationTime;
-    private final int calories;
+    public final int preparationTime;
+    public final int calories;
 
     public FoodItem(Builder builder) {
         this.id = builder.id;
