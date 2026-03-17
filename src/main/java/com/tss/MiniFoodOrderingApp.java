@@ -2,9 +2,9 @@ package com.tss;
 
 import com.tss.Datatype.Role;
 import com.tss.Exception.AuthenticationFailedException;
-import com.tss.Repository.InMemoryUserRepository;
 import com.tss.Repository.UserRepository;
 import com.tss.Utils.Display;
+import com.tss.Utils.GlobalVariables;
 import com.tss.model.CurrentUser;
 import com.tss.model.User.*;
 
@@ -19,7 +19,7 @@ public class MiniFoodOrderingApp {
     private final UserRepository userRepo;
 
     public MiniFoodOrderingApp(){
-        this.userRepo = InMemoryUserRepository.getInstance();
+        this.userRepo = GlobalVariables.getInstance().userRepository;
     }
 
     public void registerUser(Role role){

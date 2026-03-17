@@ -3,8 +3,6 @@ package com.tss.model.User;
 import com.tss.Datatype.OrderStatus;
 import com.tss.Datatype.Role;
 import com.tss.Observer.NotificationObserver;
-import com.tss.Repository.DBNotificationRepository;
-import com.tss.Repository.DBOrderRepository;
 import com.tss.Repository.NotificationRepository;
 import com.tss.Repository.OrderRepository;
 import com.tss.Utils.GlobalVariables;
@@ -19,8 +17,8 @@ import java.util.List;
 
 public class Customer extends User implements NotificationObserver {
 
-    private static final OrderRepository orderRepository = DBOrderRepository.getInstance();
-    private static final NotificationRepository notificationRepository = DBNotificationRepository.getInstance();
+    private static final OrderRepository orderRepository = GlobalVariables.getInstance().orderRepository;
+    private static final NotificationRepository notificationRepository = GlobalVariables.getInstance().notificationRepository;
 
     private List<Order> orderList;
     private String upiId;

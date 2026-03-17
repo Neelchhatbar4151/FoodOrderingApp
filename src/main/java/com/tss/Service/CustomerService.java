@@ -10,8 +10,6 @@ import com.tss.Exception.NoDataFoundException;
 import com.tss.Payment.CashOnDelivery;
 import com.tss.Payment.UPI;
 import com.tss.Repository.FoodItemRepository;
-import com.tss.Repository.InMemoryFoodItemRepository;
-import com.tss.Repository.InMemoryUserRepository;
 import com.tss.Repository.UserRepository;
 import com.tss.Utils.Display;
 import com.tss.Utils.GlobalVariables;
@@ -33,8 +31,8 @@ public class CustomerService {
 
     public CustomerService(){
         customer = (Customer) CurrentUser.getInstance().getUser();
-        this.foodRepo = InMemoryFoodItemRepository.getInstance();
-        this.userRepo = InMemoryUserRepository.getInstance();
+        this.foodRepo = GlobalVariables.getInstance().foodItemRepository;
+        this.userRepo = GlobalVariables.getInstance().userRepository;
         this.selector = new SelectorService();
     }
 

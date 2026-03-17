@@ -18,7 +18,7 @@ public class DBOrderRepository implements OrderRepository {
     private final OrderItemRepository orderItemRepository;
 
     private DBOrderRepository() {
-        this.orderItemRepository = DBOrderItemRepository.getInstance();
+        this.orderItemRepository = com.tss.Utils.GlobalVariables.getInstance().orderItemRepository;
     }
 
     @Override
