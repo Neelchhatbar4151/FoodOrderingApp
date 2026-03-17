@@ -19,7 +19,7 @@ public class GlobalVariables {
     public NotificationChannel customerNotificationChannel = new NotificationChannel();
     public NotificationChannel deliveryPartnerNotificationChannel = new NotificationChannel();
 
-    public final UserRepository userRepository = new DBUserRepository();
+    public final UserRepository userRepository = DBUserRepository.getInstance();
     public final FoodItemRepository foodItemRepository = DBFoodItemRepository.getInstance();
     public final NotificationRepository notificationRepository = DBNotificationRepository.getInstance();
     public final OrderRepository orderRepository = DBOrderRepository.getInstance();
