@@ -5,14 +5,17 @@ import com.tss.Datatype.Role;
 import com.tss.Observer.NotificationObserver;
 import com.tss.Utils.GlobalVariables;
 import com.tss.model.FoodItem;
+import com.tss.model.Notification;
 import com.tss.model.Order;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Customer extends User implements NotificationObserver {
 
-    private final List<Order> orderList;
+    private List<Order> orderList;
     private String upiId;
     private Order cart;
     private String address;
@@ -87,4 +90,60 @@ public class Customer extends User implements NotificationObserver {
     public void setAddress(String address) {
         this.address = address;
     }
+
+
+    // ✅ FULL BUILDER
+    public static class Builder {
+
+        // User fields
+        private long id;
+        private String name;
+        private String phone;
+        private String password;
+        private List<Notification> notifications;
+        private int indexOfNewNotification;
+        private Role role;
+        private LocalDateTime createdOn;
+
+        // Customer fields
+        private List<Order> orderList;
+        private String upiId;
+        private Order cart;
+        private String address;
+
+        public Builder setId(long id) { this.id = id; return this; }
+        public Builder setName(String name) { this.name = name; return this; }
+        public Builder setPhone(String phone) { this.phone = phone; return this; }
+        public Builder setPassword(String password) { this.password = password; return this; }
+        public Builder setNotifications(List<Notification> notifications) { this.notifications = notifications; return this; }
+        public Builder setIndexOfNewNotification(int index) { this.indexOfNewNotification = index; return this; }
+        public Builder setRole(Role role) { this.role = role; return this; }
+        public Builder setCreatedOn(LocalDateTime createdOn) { this.createdOn = createdOn; return this; }
+
+        public Builder setOrderList(List<Order> orderList) { this.orderList = orderList; return this; }
+        public Builder setUpiId(String upiId) { this.upiId = upiId; return this; }
+        public Builder setCart(Order cart) { this.cart = cart; return this; }
+        public Builder setAddress(String address) { this.address = address; return this; }
+
+        public Customer build() {
+            Customer c = new Customer(name, phone, password);
+
+            c.id = id;
+            c.name = name;
+            c.phone = phone;
+            c.password = password;
+            c.notifications = notifications;
+            c.indexOfNewNotification = indexOfNewNotification;
+            c.role = role;
+            c.createdOn = createdOn;
+
+            c.orderList = (orderList != null) ? orderList : new ArrayList<>();
+            c.upiId = upiId;
+            c.cart = cart;
+            c.address = address;
+
+            return c;
+        }
+    }
+
 }

@@ -3,10 +3,17 @@ package com.tss.model;
 import com.tss.Datatype.AvailabilityStatus;
 
 public class OrderItem {
+    public long id;
     public FoodItem foodItem;
     private int quantity;
 
     public OrderItem(FoodItem foodItem, int quantity){
+        this.foodItem = foodItem;
+        this.quantity = quantity;
+    }
+
+    public OrderItem(long id, FoodItem foodItem, int quantity){
+        this.id = id;
         this.foodItem = foodItem;
         this.quantity = quantity;
     }

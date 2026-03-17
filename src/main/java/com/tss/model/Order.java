@@ -11,14 +11,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class Order {
-    private final int id;
-    private final List<OrderItem> items;
+    private long id;
+    private List<OrderItem> items;
     private String discountDescription;
     private PaymentMode payment;
     private DeliveryPartner deliveryPartner;
     private OrderStatus status;
     private LocalDateTime orderPlacedOn;
-    private final Customer customer;
+    private Customer customer;
 
     private final static Map<OrderStatus, OrderStatus> movementGraph = new HashMap<>();
 
@@ -97,7 +97,7 @@ public class Order {
         this.deliveryPartner = deliveryPartner;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
@@ -172,5 +172,78 @@ public class Order {
     public String getDiscountDescription() {
         getDiscount();
         return discountDescription;
+    }
+
+    //Builder
+    public static class Builder {
+
+        private long id;
+        private List<OrderItem> items;
+        private String discountDescription;
+        private PaymentMode payment;
+        private DeliveryPartner deliveryPartner;
+        private OrderStatus status;
+        private LocalDateTime orderPlacedOn;
+        private Customer customer;
+
+        public Builder setId(long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder setItems(List<OrderItem> items) {
+            this.items = items;
+            return this;
+        }
+
+        public Builder setDiscountDescription(String discountDescription) {
+            this.discountDescription = discountDescription;
+            return this;
+        }
+
+        public Builder setPayment(PaymentMode payment) {
+            this.payment = payment;
+            return this;
+        }
+
+        public Builder setDeliveryPartner(DeliveryPartner deliveryPartner) {
+            this.deliveryPartner = deliveryPartner;
+            return this;
+        }
+
+        public Builder setStatus(OrderStatus status) {
+            this.status = status;
+            return this;
+        }
+
+        public Builder setOrderPlacedOn(LocalDateTime orderPlacedOn) {
+            this.orderPlacedOn = orderPlacedOn;
+            return this;
+        }
+
+        public Builder setCustomer(Customer customer) {
+            this.customer = customer;
+            return this;
+        }
+
+        public Order build() {
+            Order order = new Order(customer);
+
+            // Override all fields
+            order.id = this.id;
+
+            order.items.clear();
+            if (items != null) {
+                order.items.addAll(items);
+            }
+
+            order.discountDescription = this.discountDescription;
+            order.payment = this.payment;
+            order.deliveryPartner = this.deliveryPartner;
+            order.status = this.status;
+            order.orderPlacedOn = this.orderPlacedOn;
+
+            return order;
+        }
     }
 }

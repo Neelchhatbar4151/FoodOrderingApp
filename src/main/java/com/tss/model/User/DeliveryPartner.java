@@ -9,6 +9,7 @@ import com.tss.Utils.GlobalVariables;
 import com.tss.model.Notification;
 import com.tss.model.Order;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class DeliveryPartner extends User implements NotificationObserver {
     private AvailabilityStatus status;
     public Order assignedOrder;
     private double totalEarnings;
-    private final List<Order> deliveredOrders;
+    private List<Order> deliveredOrders;
     private boolean isApproved;
 
     public static double commissionPercentage = 0.1;
@@ -30,13 +31,16 @@ public class DeliveryPartner extends User implements NotificationObserver {
         this.totalEarnings = 0.0;
         this.deliveredOrders = new ArrayList<>();
 
-        addNotification(new Notification("You're Currently Not Approved as a Delivery partner, once Admin approves your account, you'll be eligible to deliver orders."));
+        addNotification(new Notification(
+                "You're Currently Not Approved as a Delivery partner, once Admin approves your account, you'll be eligible to deliver orders."
+        ));
 
         GlobalVariables.getInstance()
                 .deliveryPartnerNotificationChannel
                 .subscribe(this);
     }
 
+    // Existing methods
     public void assignOrder(Order order) {
         if(status == AvailabilityStatus.NOT_AVAILABLE){
             throw new DeliveryPartnerIsBusyException();
@@ -50,8 +54,16 @@ public class DeliveryPartner extends User implements NotificationObserver {
             return false;
         }
 
-        addNotification(new Notification("Order Completion, Commission Earned: " + (assignedOrder.getFinalAmount() * commissionPercentage) + ", Order Id: " + assignedOrder.getId()));
-        assignedOrder.getCustomer().addNotification(new Notification("Order Delivered Successfully, Order Id: " + assignedOrder.getId()));
+        addNotification(new Notification(
+                "Order Completion, Commission Earned: " +
+                        (assignedOrder.getFinalAmount() * commissionPercentage) +
+                        ", Order Id: " + assignedOrder.getId()
+        ));
+
+        assignedOrder.getCustomer().addNotification(
+                new Notification("Order Delivered Successfully, Order Id: " + assignedOrder.getId())
+        );
+
         assignedOrder.moveToNextState(true);
         this.deliveredOrders.add(assignedOrder);
 
@@ -76,12 +88,9 @@ public class DeliveryPartner extends User implements NotificationObserver {
         }
         if(state){
             isApproved = true;
-
-            //Registering Delivery Partner in Queue
             if(status != AvailabilityStatus.NOT_AVAILABLE)
                 OrderService.getInstance().addDeliveryPartner(this);
-        }
-        else{
+        } else {
             isApproved = false;
             OrderService.getInstance().removeDeliveryPartner(this);
         }
@@ -112,5 +121,63 @@ public class DeliveryPartner extends User implements NotificationObserver {
                 createdOn,
                 status
         );
+    }
+
+
+    // ✅ FULL BUILDER
+    public static class Builder {
+
+        // User fields
+        private long id;
+        private String name;
+        private String phone;
+        private String password;
+        private List<Notification> notifications;
+        private int indexOfNewNotification;
+        private Role role;
+        private LocalDateTime createdOn;
+
+        // DeliveryPartner fields
+        private AvailabilityStatus status;
+        private Order assignedOrder;
+        private double totalEarnings;
+        private List<Order> deliveredOrders;
+        private boolean isApproved;
+
+        public Builder setId(long id) { this.id = id; return this; }
+        public Builder setName(String name) { this.name = name; return this; }
+        public Builder setPhone(String phone) { this.phone = phone; return this; }
+        public Builder setPassword(String password) { this.password = password; return this; }
+        public Builder setNotifications(List<Notification> notifications) { this.notifications = notifications; return this; }
+        public Builder setIndexOfNewNotification(int index) { this.indexOfNewNotification = index; return this; }
+        public Builder setRole(Role role) { this.role = role; return this; }
+        public Builder setCreatedOn(LocalDateTime createdOn) { this.createdOn = createdOn; return this; }
+
+        public Builder setStatus(AvailabilityStatus status) { this.status = status; return this; }
+        public Builder setAssignedOrder(Order assignedOrder) { this.assignedOrder = assignedOrder; return this; }
+        public Builder setTotalEarnings(double totalEarnings) { this.totalEarnings = totalEarnings; return this; }
+        public Builder setDeliveredOrders(List<Order> deliveredOrders) { this.deliveredOrders = deliveredOrders; return this; }
+        public Builder setIsApproved(boolean isApproved) { this.isApproved = isApproved; return this; }
+
+        public DeliveryPartner build() {
+            DeliveryPartner d = new DeliveryPartner(name, phone, password);
+
+            d.id = id;
+            d.name = name;
+            d.phone = phone;
+            d.password = password;
+            d.notifications = notifications;
+            d.indexOfNewNotification = indexOfNewNotification;
+            d.role = role;
+            d.createdOn = createdOn;
+
+            d.status = status;
+            d.assignedOrder = assignedOrder;
+            d.totalEarnings = totalEarnings;
+            d.deliveredOrders = (deliveredOrders != null) ? deliveredOrders : new ArrayList<>();
+            d.isApproved = isApproved;
+
+            return d;
+        }
     }
 }

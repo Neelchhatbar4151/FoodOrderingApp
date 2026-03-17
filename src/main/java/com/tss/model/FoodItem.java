@@ -14,7 +14,7 @@ public class FoodItem {
     private final int calories;
 
     public FoodItem(Builder builder) {
-        this.id = GlobalVariables.getInstance().newFoodItemId++;
+        this.id = builder.id;
         this.name = builder.name;
         this.description = builder.description;
         this.price = builder.price;
@@ -48,6 +48,8 @@ public class FoodItem {
     }
 
     public static class Builder {
+
+        private int id;
 
         // Required fields
         private final String name;
@@ -83,6 +85,11 @@ public class FoodItem {
 
         public Builder calories(int calories) {
             this.calories = calories;
+            return this;
+        }
+
+        public Builder id(int id){
+            this.id = id;
             return this;
         }
 

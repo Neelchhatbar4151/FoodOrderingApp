@@ -10,11 +10,15 @@ public class Notification {
     public final String description;
     public final LocalDateTime timeStamp;
 
-
     public Notification(String description){
         this.id = GlobalVariables.getInstance().newNotificationId++;
         this.description = description;
         this.timeStamp = LocalDateTime.now();
+    }
+    public Notification(int id, String description, LocalDateTime timeStamp){
+        this.id = id;
+        this.description = description;
+        this.timeStamp = timeStamp;
     }
 
     @Override
