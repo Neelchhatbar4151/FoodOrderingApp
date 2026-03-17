@@ -14,6 +14,14 @@ public class DBFoodItemRepository implements FoodItemRepository {
 
     private DBFoodItemRepository(){}
 
+    public static class Initiator {
+        private static final DBFoodItemRepository instance = new DBFoodItemRepository();
+    }
+
+    public static DBFoodItemRepository getInstance() {
+        return Initiator.instance;
+    }
+
     // ================================
     // 🔹 ADD FOOD ITEM
     // ================================
