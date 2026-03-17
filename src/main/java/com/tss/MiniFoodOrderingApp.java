@@ -88,9 +88,10 @@ public class MiniFoodOrderingApp {
         switch (choice) {
             case 1 -> registerUser(Role.CUSTOMER);
             case 2 -> registerUser(Role.DELIVERY_PARTNER);
-            case 3 -> loginUser(Role.ADMIN);
-            case 4 -> loginUser(Role.CUSTOMER);
-            case 5 -> loginUser(Role.DELIVERY_PARTNER);
+            case 3 -> registerUser(Role.ADMIN);
+            case 4 -> loginUser(Role.ADMIN);
+            case 5 -> loginUser(Role.CUSTOMER);
+            case 6 -> loginUser(Role.DELIVERY_PARTNER);
             case 0 -> {
                 failure("X-- Closing App");
                 return false;

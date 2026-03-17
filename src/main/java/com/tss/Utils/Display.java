@@ -84,10 +84,11 @@ public class Display {
             Registration:
                 1. Customer
                 2. Delivery Partner
-            Login:
                 3. Admin
-                4. Customer
-                5. Delivery Partner
+            Login:
+                4. Admin
+                5. Customer
+                6. Delivery Partner
             0. Close App
             =================================
             Enter your choice:""");

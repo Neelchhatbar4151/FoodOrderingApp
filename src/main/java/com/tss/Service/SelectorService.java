@@ -104,6 +104,9 @@ public class SelectorService {
     }
 
     public FoodItem selectFoodItemFromCart(Order cart){
+        if(cart == null){
+            throw new EmptyCartException();
+        }
         List<OrderItem> foodItems = cart.getItems();
 
         if(foodItems.isEmpty()){

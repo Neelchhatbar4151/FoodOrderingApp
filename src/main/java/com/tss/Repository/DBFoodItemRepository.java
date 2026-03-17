@@ -1,7 +1,7 @@
 package com.tss.Repository;
 
-import com.tss.Datatype.AvailabilityStatus;
 import com.tss.DB.DBConnection;
+import com.tss.Datatype.AvailabilityStatus;
 import com.tss.model.Category;
 import com.tss.model.FoodItem;
 
@@ -32,7 +32,7 @@ public class DBFoodItemRepository implements FoodItemRepository {
 
             String query = """
                 INSERT INTO food_items
-                (name, description, price, category_id, availability, preparation_time, calories)
+                (name, description, price, category_id, is_available, preparation_time, calories)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             """;
 
@@ -41,7 +41,7 @@ public class DBFoodItemRepository implements FoodItemRepository {
             ps.setString(2, item.description);
             ps.setDouble(3, item.price);
             ps.setObject(4, item.category != null ? item.category.id : null);
-            ps.setString(5, item.getAvailability().name());
+            ps.setBoolean(5, (item.getAvailability() == AvailabilityStatus.AVAILABLE));
             ps.setInt(6, item.preparationTime);
             ps.setInt(7, item.calories);
 
@@ -60,7 +60,7 @@ public class DBFoodItemRepository implements FoodItemRepository {
 
         try (Connection conn = DBConnection.getConnection()) {
 
-            String query = "DELETE FROM food_items WHERE id = ?";
+            String query = "DELETE FROM food_items WHERE food_item_id = ?";
             PreparedStatement ps = conn.prepareStatement(query);
             ps.setInt(1, id);
 
@@ -84,8 +84,8 @@ public class DBFoodItemRepository implements FoodItemRepository {
             String query = """
                 SELECT fi.*, c.name AS category_name
                 FROM food_items fi
-                LEFT JOIN categories c ON fi.category_id = c.id
-                WHERE fi.id = ?
+                LEFT JOIN categories c ON fi.category_id = c.category_id
+                WHERE fi.food_item_id = ?
             """;
 
             PreparedStatement ps = conn.prepareStatement(query);
@@ -117,7 +117,7 @@ public class DBFoodItemRepository implements FoodItemRepository {
             String query = """
                 SELECT fi.*, c.name AS category_name
                 FROM food_items fi
-                LEFT JOIN categories c ON fi.category_id = c.id
+                LEFT JOIN categories c ON fi.category_id = c.category_id
             """;
 
             PreparedStatement ps = conn.prepareStatement(query);
@@ -144,12 +144,12 @@ public class DBFoodItemRepository implements FoodItemRepository {
 
             String query = """
                 UPDATE food_items
-                SET availability = ?
-                WHERE id = ?
+                SET is_available = ?
+                WHERE food_item_id = ?
             """;
 
             PreparedStatement ps = conn.prepareStatement(query);
-            ps.setString(1, state.name());
+            ps.setBoolean(1, state == AvailabilityStatus.AVAILABLE);
             ps.setInt(2, id);
 
             return ps.executeUpdate() > 0;
@@ -194,7 +194,7 @@ public class DBFoodItemRepository implements FoodItemRepository {
 
             // 🔹 delete category
             PreparedStatement ps2 = conn.prepareStatement(
-                    "DELETE FROM categories WHERE id = ?"
+                    "DELETE FROM categories WHERE category_id = ?"
             );
             ps2.setInt(1, id);
 
@@ -212,7 +212,7 @@ public class DBFoodItemRepository implements FoodItemRepository {
 
         try (Connection conn = DBConnection.getConnection()) {
 
-            String query = "SELECT * FROM categories WHERE id = ?";
+            String query = "SELECT * FROM categories WHERE category_id = ?";
             PreparedStatement ps = conn.prepareStatement(query);
             ps.setInt(1, id);
 
@@ -221,7 +221,7 @@ public class DBFoodItemRepository implements FoodItemRepository {
             if (!rs.next()) return null;
 
             return new Category(
-                    rs.getInt("id"),
+                    rs.getInt("category_id"),
                     rs.getString("name")
             );
 
@@ -245,7 +245,7 @@ public class DBFoodItemRepository implements FoodItemRepository {
 
             while (rs.next()) {
                 list.add(new Category(
-                        rs.getInt("id"),
+                        rs.getInt("category_id"),
                         rs.getString("name")
                 ));
             }
@@ -274,9 +274,9 @@ public class DBFoodItemRepository implements FoodItemRepository {
                 rs.getDouble("price"),
                 category
         )
-                .id(rs.getInt("id"))
+                .id(rs.getInt("food_item_id"))
                 .description(rs.getString("description"))
-                .availability(AvailabilityStatus.valueOf(rs.getString("availability")))
+                .availability((rs.getBoolean("is_available")?AvailabilityStatus.AVAILABLE:AvailabilityStatus.NOT_AVAILABLE))
                 .preparationTime(rs.getInt("preparation_time"))
                 .calories(rs.getInt("calories"))
                 .build();

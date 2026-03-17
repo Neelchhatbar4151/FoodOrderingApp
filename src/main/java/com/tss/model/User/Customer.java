@@ -37,7 +37,7 @@ public class Customer extends User implements NotificationObserver {
     }
 
     public void addItemToCart(FoodItem item, int quantity){
-        cart.addItem(item, quantity);
+        this.getCart().addItem(item, quantity);
     }
 
     public boolean removeItemFromCart(FoodItem item, int quantity){
@@ -55,6 +55,7 @@ public class Customer extends User implements NotificationObserver {
     }
 
     public void setNewCart(){
+        orderRepository.createOrder();
         orderList.add(cart);
         cart = new Order(this);
     }

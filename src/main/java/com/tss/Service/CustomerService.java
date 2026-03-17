@@ -75,6 +75,9 @@ public class CustomerService {
     }
 
     private void placeOrder(){
+        if(customer.getCart() == null){
+            throw new EmptyCartException();
+        }
         Order cart = customer.getCart();
 
         if(cart.getTotalAmount() == 0){
@@ -173,7 +176,7 @@ public class CustomerService {
     }
 
     private void showCart(){
-        if(customer.getCart().getTotalAmount() == 0){
+        if(customer.getCart() == null || customer.getCart().getTotalAmount() == 0){
             throw new EmptyCartException();
         }
         Display.displayOrder(customer.getCart());
