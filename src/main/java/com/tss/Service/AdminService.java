@@ -4,8 +4,6 @@ import com.tss.Datatype.AvailabilityStatus;
 import com.tss.Datatype.Role;
 import com.tss.Exception.NoDataFoundException;
 import com.tss.Repository.FoodItemRepository;
-import com.tss.Repository.InMemoryFoodItemRepository;
-import com.tss.Repository.InMemoryUserRepository;
 import com.tss.Repository.UserRepository;
 import com.tss.Utils.Display;
 import com.tss.Utils.GlobalVariables;
@@ -26,8 +24,8 @@ public class AdminService {
     private final SelectorService selector;
 
     public AdminService(){
-        this.userRepo = InMemoryUserRepository.getInstance();
-        this.foodRepo = InMemoryFoodItemRepository.getInstance();
+        this.userRepo = GlobalVariables.getInstance().userRepository;
+        this.foodRepo = GlobalVariables.getInstance().foodItemRepository;
         this.selector = new SelectorService();
     }
 
