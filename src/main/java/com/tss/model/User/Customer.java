@@ -10,7 +10,6 @@ import com.tss.model.FoodItem;
 import com.tss.model.Notification;
 import com.tss.model.Order;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +28,7 @@ public class Customer extends User implements NotificationObserver {
         super(name, phone, password, Role.CUSTOMER);
         this.orderList = new ArrayList<>();
         this.upiId = "";
-        this.cart = new Order(this);
+        this.cart = null;
         this.address = "";
         GlobalVariables.getInstance()
                 .customerNotificationChannel
@@ -55,8 +54,15 @@ public class Customer extends User implements NotificationObserver {
     }
 
     public void setNewCart(){
-        orderList.add(cart);
-        cart = new Order(this);
+        if(cart != null){
+            orderList.add(cart);
+        }
+
+        cart = orderRepository.createCart(this);
+
+        if(cart == null){
+            throw new IllegalStateException("Unable to create new cart.");
+        }
     }
 
     public List<Order> getOnGoingOrders(){
@@ -120,6 +126,18 @@ public class Customer extends User implements NotificationObserver {
     }
 
     public Order getCart() {
+        if(cart == null){
+            cart = orderRepository.getActiveCartByCustomerId(this.id, this);
+
+            if(cart == null){
+                cart = orderRepository.createCart(this);
+            }
+
+            if(cart == null){
+                throw new IllegalStateException("Unable to load cart.");
+            }
+        }
+
         return cart;
     }
 

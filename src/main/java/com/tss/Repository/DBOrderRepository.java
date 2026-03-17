@@ -57,6 +57,35 @@ public class DBOrderRepository implements OrderRepository {
         return -1;
     }
 
+
+    @Override
+    public Order createCart(Customer customer) {
+        try (Connection conn = DBConnection.getConnection()) {
+            String query = """
+                    INSERT INTO orders(payment_id, delivery_partner_id, order_status, order_placed_on, customer_id, discount_amount)
+                    VALUES (?, ?, ?::order_status, ?, ?, ?)
+                    RETURNING *
+                    """;
+
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setNull(1, java.sql.Types.BIGINT);
+            ps.setNull(2, java.sql.Types.BIGINT);
+            ps.setString(3, OrderStatus.CREATED.name());
+            ps.setTimestamp(4, null);
+            ps.setLong(5, customer.getId());
+            ps.setDouble(6, 0);
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return buildOrder(rs, customer);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
     @Override
     public boolean updateStatus(long orderId, OrderStatus status) {
         try (Connection conn = DBConnection.getConnection()) {
@@ -124,6 +153,33 @@ public class DBOrderRepository implements OrderRepository {
 
             return buildOrder(rs, customer);
 
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+
+    @Override
+    public Order getActiveCartByCustomerId(long customerId, Customer customer) {
+        try (Connection conn = DBConnection.getConnection()) {
+            String query = """
+                    SELECT *
+                    FROM orders
+                    WHERE customer_id = ? AND order_status = 'CREATED'::order_status
+                    ORDER BY order_id DESC
+                    LIMIT 1
+                    """;
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setLong(1, customerId);
+
+            ResultSet rs = ps.executeQuery();
+            if (!rs.next()) {
+                return null;
+            }
+
+            return buildOrder(rs, customer);
         } catch (Exception e) {
             e.printStackTrace();
         }

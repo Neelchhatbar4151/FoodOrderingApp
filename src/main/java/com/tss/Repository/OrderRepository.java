@@ -8,9 +8,11 @@ import java.util.List;
 
 public interface OrderRepository {
     long createOrder(Order order);
+    Order createCart(Customer customer);
     boolean updateStatus(long orderId, OrderStatus status);
     boolean assignDeliveryPartner(long orderId, Long deliveryPartnerId);
     boolean setPayment(long orderId, Long paymentId);
     Order getById(long orderId, Customer customer);
+    Order getActiveCartByCustomerId(long customerId, Customer customer);
     List<Order> getByCustomerId(long customerId, Customer customer);
 }
