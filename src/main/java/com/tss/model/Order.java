@@ -2,6 +2,9 @@ package com.tss.model;
 
 import com.tss.Datatype.OrderStatus;
 import com.tss.Payment.PaymentMode;
+import com.tss.Repository.OrderItemRepository;
+import com.tss.Repository.OrderRepository;
+import com.tss.Repository.PaymentRepository;
 import com.tss.Utils.GlobalVariables;
 import com.tss.model.User.Customer;
 import com.tss.model.User.DeliveryPartner;
@@ -21,6 +24,10 @@ public class Order {
     private Customer customer;
 
     private final static Map<OrderStatus, OrderStatus> movementGraph = new HashMap<>();
+
+    private static final OrderRepository orderRepository = GlobalVariables.getInstance().orderRepository;
+    private static final OrderItemRepository orderItemRepository = GlobalVariables.getInstance().orderItemRepository;
+    private static final PaymentRepository paymentRepository = GlobalVariables.getInstance().paymentRepository;
 
     static {
         movementGraph.put(OrderStatus.CREATED, OrderStatus.CONFIRMED);
@@ -46,9 +53,11 @@ public class Order {
     public boolean moveToNextState(boolean flag){
         if(!flag){
             status = OrderStatus.CANCELLED;
+            return orderRepository.updateStatus(id, status);
         }
         if(status == OrderStatus.CREATED){
             orderPlacedOn = LocalDateTime.now();
+            orderRepository.updatePlacedOn(id, orderPlacedOn);
         }
         OrderStatus tempStatus = movementGraph.get(status);
 
@@ -57,25 +66,31 @@ public class Order {
         }
 
         status = tempStatus;
-
-        return true;
+        return orderRepository.updateStatus(id, status);
     }
 
     public void addItem(FoodItem item, int quantity){
         for(OrderItem orderItem: items){
-            if(orderItem.foodItem == item){
+            if(orderItem.foodItem.id == item.id){
                 orderItem.increaseQuantity(quantity);
+                orderItemRepository.updateQuantity(orderItem.id, orderItem.getCurrentQuantity());
                 return;
             }
         }
-        items.add(new OrderItem(item, quantity));
+
+        OrderItem orderItem = new OrderItem(item, quantity);
+        long orderItemId = orderItemRepository.addItem(id, orderItem);
+        if(orderItemId > 0){
+            orderItem.id = orderItemId;
+        }
+        items.add(orderItem);
     }
 
     public boolean removeItem(FoodItem item, int quantity){
         boolean result = false;
         OrderItem tempOrderItem = null;
         for(OrderItem orderItem: items){
-            if(orderItem.foodItem == item){
+            if(orderItem.foodItem.id == item.id){
                 result = orderItem.decreaseQuantity(quantity);
                 tempOrderItem = orderItem;
                 break;
@@ -88,6 +103,9 @@ public class Order {
 
         if(result){
             items.remove(tempOrderItem);
+            orderItemRepository.deleteById(tempOrderItem.id);
+        } else {
+            orderItemRepository.updateQuantity(tempOrderItem.id, tempOrderItem.getCurrentQuantity());
         }
 
         return true;
@@ -95,6 +113,7 @@ public class Order {
 
     public void assignDeliveryPartner(DeliveryPartner deliveryPartner){
         this.deliveryPartner = deliveryPartner;
+        orderRepository.assignDeliveryPartner(id, deliveryPartner == null ? null : deliveryPartner.getId());
     }
 
     public long getId() {
@@ -131,6 +150,11 @@ public class Order {
 
     public void setPayment(PaymentMode payment){
         this.payment = payment;
+
+        long paymentId = paymentRepository.createPayment(payment.getName().equals("COD") ? "CASH_ON_DELIVERY" : payment.getName(), payment.getTransactionReferenceId());
+        if(paymentId > 0){
+            orderRepository.setPayment(id, paymentId);
+        }
     }
 
     public Customer getCustomer(){

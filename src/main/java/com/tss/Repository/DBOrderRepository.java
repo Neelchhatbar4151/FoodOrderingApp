@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -92,6 +93,23 @@ public class DBOrderRepository implements OrderRepository {
             String query = "UPDATE orders SET order_status = ?::order_status WHERE order_id = ?";
             PreparedStatement ps = conn.prepareStatement(query);
             ps.setString(1, status.name());
+            ps.setLong(2, orderId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+
+
+    @Override
+    public boolean updatePlacedOn(long orderId, LocalDateTime orderPlacedOn) {
+        try (Connection conn = DBConnection.getConnection()) {
+            String query = "UPDATE orders SET order_placed_on = ? WHERE order_id = ?";
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setTimestamp(1, orderPlacedOn == null ? null : Timestamp.valueOf(orderPlacedOn));
             ps.setLong(2, orderId);
             return ps.executeUpdate() > 0;
         } catch (Exception e) {

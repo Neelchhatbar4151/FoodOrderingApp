@@ -18,11 +18,12 @@ public class DBOrderItemRepository implements OrderItemRepository {
     }
 
     @Override
-    public void addItem(long orderId, OrderItem item) {
+    public long addItem(long orderId, OrderItem item) {
         try (Connection conn = DBConnection.getConnection()) {
             String query = """
                     INSERT INTO order_item(order_id, food_item_id, food_name, price_at_order, quantity)
                     VALUES (?, ?, ?, ?, ?)
+                    RETURNING order_item_id
                     """;
 
             PreparedStatement ps = conn.prepareStatement(query);
@@ -32,10 +33,15 @@ public class DBOrderItemRepository implements OrderItemRepository {
             ps.setDouble(4, item.foodItem.price);
             ps.setInt(5, item.getCurrentQuantity());
 
-            ps.executeUpdate();
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getLong("order_item_id");
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        return -1;
     }
 
     @Override
@@ -43,6 +49,37 @@ public class DBOrderItemRepository implements OrderItemRepository {
         for (OrderItem item : items) {
             addItem(orderId, item);
         }
+    }
+
+
+
+    @Override
+    public boolean updateQuantity(long orderItemId, int quantity) {
+        try (Connection conn = DBConnection.getConnection()) {
+            String query = "UPDATE order_item SET quantity = ? WHERE order_item_id = ?";
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setInt(1, quantity);
+            ps.setLong(2, orderItemId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean deleteById(long orderItemId) {
+        try (Connection conn = DBConnection.getConnection()) {
+            String query = "DELETE FROM order_item WHERE order_item_id = ?";
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setLong(1, orderItemId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
     @Override
