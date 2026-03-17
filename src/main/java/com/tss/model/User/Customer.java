@@ -55,7 +55,6 @@ public class Customer extends User implements NotificationObserver {
     }
 
     public void setNewCart(){
-        orderRepository.createOrder();
         orderList.add(cart);
         cart = new Order(this);
     }
