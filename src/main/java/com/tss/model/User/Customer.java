@@ -40,7 +40,7 @@ public class Customer extends User implements NotificationObserver {
     }
 
     public boolean removeItemFromCart(FoodItem item, int quantity){
-        return cart.removeItem(item, quantity);
+        return this.getCart().removeItem(item, quantity);
     }
 
     public List<Order> getOrderHistory(){

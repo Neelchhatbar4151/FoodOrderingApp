@@ -1,7 +1,7 @@
 package com.tss.Repository;
 
-import com.tss.Datatype.AvailabilityStatus;
 import com.tss.DB.DBConnection;
+import com.tss.Datatype.AvailabilityStatus;
 import com.tss.model.Category;
 import com.tss.model.FoodItem;
 import com.tss.model.OrderItem;
@@ -62,8 +62,8 @@ public class DBOrderItemRepository implements OrderItemRepository {
                            c.category_id AS live_category_id,
                            c.name AS live_category_name
                     FROM order_item oi
-                    LEFT JOIN food_item fi ON oi.food_item_id = fi.food_item_id
-                    LEFT JOIN category c ON fi.category_id = c.category_id
+                    LEFT JOIN food_items fi ON oi.food_item_id = fi.food_item_id
+                    LEFT JOIN categories c ON fi.category_id = c.category_id
                     WHERE oi.order_id = ?
                     ORDER BY oi.order_item_id
                     """;
