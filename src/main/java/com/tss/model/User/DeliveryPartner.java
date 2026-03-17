@@ -176,7 +176,9 @@ public class DeliveryPartner extends User implements NotificationObserver {
             d.totalEarnings = totalEarnings;
             d.deliveredOrders = (deliveredOrders != null) ? deliveredOrders : new ArrayList<>();
             d.isApproved = isApproved;
-
+            d.addNotification(new Notification(
+                    "You're Currently Not Approved as a Delivery partner, once Admin approves your account, you'll be eligible to deliver orders."
+            ));
             return d;
         }
     }
