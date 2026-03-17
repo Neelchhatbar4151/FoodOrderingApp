@@ -58,10 +58,8 @@ public class MiniFoodOrderingApp {
             success("Correct Credentials.");
             success("You're Logged in as " + user.getName() + " [ " + role + " ]");
 
-            //Setting up global access to current user
             CurrentUser.getInstance().setUser(user);
 
-            //Handing over control to respective role based services
             initiateService(role);
         }
     }
@@ -100,7 +98,6 @@ public class MiniFoodOrderingApp {
 
         }
 
-        //Clearing current user session
         CurrentUser.getInstance().setUser(null);
         return true;
     }

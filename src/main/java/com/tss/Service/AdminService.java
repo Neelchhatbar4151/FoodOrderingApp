@@ -1,6 +1,7 @@
 package com.tss.Service;
 
 import com.tss.Datatype.AvailabilityStatus;
+import com.tss.DB.DBConnection;
 import com.tss.Datatype.Role;
 import com.tss.Exception.NoDataFoundException;
 import com.tss.Repository.FoodItemRepository;
@@ -12,6 +13,8 @@ import com.tss.model.FoodItem;
 import com.tss.model.Notification;
 import com.tss.model.User.DeliveryPartner;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import static com.tss.Utils.GlobalVariables.inputTaker;
 import static com.tss.Utils.Input.*;
 import static com.tss.Utils.Print.*;
@@ -156,7 +159,18 @@ public class AdminService {
             throw new IllegalArgumentException("Invalid Value.");
         }
 
-        DeliveryPartner.commissionPercentage = (commission/100);
+        try (Connection conn = DBConnection.getConnection()) {
+            PreparedStatement ps = conn.prepareStatement("""
+                    INSERT INTO app_config(key, value)
+                    VALUES ('commission_percentage', ?)
+                    ON CONFLICT (key)
+                    DO UPDATE SET value = EXCLUDED.value
+                    """);
+            ps.setString(1, String.valueOf(commission));
+            ps.executeUpdate();
+        } catch (Exception e) {
+            throw new IllegalStateException("Unable to update commission percentage in app_config.");
+        }
 
         Notification notification = new Notification("Commission Per Order Changed to " + (commission) + " %.");
 

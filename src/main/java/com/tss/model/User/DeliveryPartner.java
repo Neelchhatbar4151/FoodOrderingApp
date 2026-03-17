@@ -1,5 +1,6 @@
 package com.tss.model.User;
 
+import com.tss.DB.DBConnection;
 import com.tss.Datatype.AvailabilityStatus;
 import com.tss.Datatype.Role;
 import com.tss.Exception.DeliveryPartnerIsBusyException;
@@ -9,6 +10,9 @@ import com.tss.Utils.GlobalVariables;
 import com.tss.model.Notification;
 import com.tss.model.Order;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,13 +44,75 @@ public class DeliveryPartner extends User implements NotificationObserver {
                 .subscribe(this);
     }
 
-    // Existing methods
+    private void persistAssignmentAvailability(boolean isAvailable) {
+        try (Connection conn = DBConnection.getConnection()) {
+            PreparedStatement ps = conn.prepareStatement("UPDATE delivery_partner SET is_available = ? WHERE delivery_partner_id = ?");
+            ps.setBoolean(1, isAvailable);
+            ps.setLong(2, this.id);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            throw new IllegalStateException("Unable to update delivery partner availability.");
+        }
+    }
+
+    private void persistCompletion() {
+        try (Connection conn = DBConnection.getConnection()) {
+            PreparedStatement ps = conn.prepareStatement("""
+                    UPDATE delivery_partner
+                    SET total_earnings = ?,
+                        is_available = true
+                    WHERE delivery_partner_id = ?
+                    """);
+            ps.setDouble(1, totalEarnings);
+            ps.setLong(2, this.id);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            throw new IllegalStateException("Unable to persist delivery completion.");
+        }
+    }
+
+
+    private void persistApproval(boolean approved) {
+        try (Connection conn = DBConnection.getConnection()) {
+            PreparedStatement ps = conn.prepareStatement("UPDATE delivery_partner SET is_approved = ? WHERE delivery_partner_id = ?");
+            ps.setBoolean(1, approved);
+            ps.setLong(2, this.id);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            throw new IllegalStateException("Unable to update delivery partner approval state.");
+        }
+    }
+
+    private static double getCommissionRateFromDb() {
+        try (Connection conn = DBConnection.getConnection()) {
+            PreparedStatement ps = conn.prepareStatement("SELECT value FROM app_config WHERE key = 'commission_percentage'");
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                double percent = Double.parseDouble(rs.getString("value"));
+                if (percent < 0 || percent > 100) {
+                    throw new IllegalStateException("commission_percentage in app_config must be between 0 and 100.");
+                }
+                return percent / 100.0;
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException("Unable to read commission percentage from app_config.");
+        }
+
+        return commissionPercentage;
+    }
+
+    public void setAssignedOrderFromDb(Order order) {
+        this.assignedOrder = order;
+        this.status = (order == null) ? AvailabilityStatus.AVAILABLE : AvailabilityStatus.NOT_AVAILABLE;
+    }
+
     public void assignOrder(Order order) {
         if(status == AvailabilityStatus.NOT_AVAILABLE){
             throw new DeliveryPartnerIsBusyException();
         }
         status = AvailabilityStatus.NOT_AVAILABLE;
         assignedOrder = order;
+        persistAssignmentAvailability(false);
     }
 
     public boolean completeDelivery(){
@@ -54,9 +120,11 @@ public class DeliveryPartner extends User implements NotificationObserver {
             return false;
         }
 
+        double currentCommissionRate = getCommissionRateFromDb();
+
         addNotification(new Notification(
                 "Order Completion, Commission Earned: " +
-                        (assignedOrder.getFinalAmount() * commissionPercentage) +
+                        (assignedOrder.getFinalAmount() * currentCommissionRate) +
                         ", Order Id: " + assignedOrder.getId()
         ));
 
@@ -67,9 +135,10 @@ public class DeliveryPartner extends User implements NotificationObserver {
         assignedOrder.moveToNextState(true);
         this.deliveredOrders.add(assignedOrder);
 
-        totalEarnings += (assignedOrder.getFinalAmount() * commissionPercentage);
+        totalEarnings += (assignedOrder.getFinalAmount() * currentCommissionRate);
         assignedOrder = null;
         status = AvailabilityStatus.AVAILABLE;
+        persistCompletion();
 
         if(isApproved){
             OrderService.getInstance().addDeliveryPartner(this);
@@ -88,10 +157,12 @@ public class DeliveryPartner extends User implements NotificationObserver {
         }
         if(state){
             isApproved = true;
+            persistApproval(true);
             if(status != AvailabilityStatus.NOT_AVAILABLE)
                 OrderService.getInstance().addDeliveryPartner(this);
         } else {
             isApproved = false;
+            persistApproval(false);
             OrderService.getInstance().removeDeliveryPartner(this);
         }
     }
@@ -123,11 +194,8 @@ public class DeliveryPartner extends User implements NotificationObserver {
         );
     }
 
-
-    // ✅ FULL BUILDER
     public static class Builder {
 
-        // User fields
         private long id;
         private String name;
         private String phone;
@@ -137,7 +205,6 @@ public class DeliveryPartner extends User implements NotificationObserver {
         private Role role;
         private LocalDateTime createdOn;
 
-        // DeliveryPartner fields
         private AvailabilityStatus status;
         private Order assignedOrder;
         private double totalEarnings;

@@ -22,7 +22,6 @@ public class OrderItem {
         this.quantity += quantity;
     }
 
-    //return false if quantity becomes 0
     public boolean decreaseQuantity(int quantity){
         if(this.quantity < quantity){
             throw new IllegalArgumentException("Invalid Quantity.");

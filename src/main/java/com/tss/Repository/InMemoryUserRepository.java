@@ -9,7 +9,6 @@ import com.tss.model.User.User;
 import java.io.*;
 import java.util.*;
 
-//Singleton
 public class InMemoryUserRepository implements UserRepository {
     private final Map<Role, Map<String, User>> users;
 
