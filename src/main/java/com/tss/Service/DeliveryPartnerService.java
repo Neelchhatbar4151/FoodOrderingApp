@@ -22,6 +22,10 @@ public class DeliveryPartnerService {
 
     public DeliveryPartnerService(){
         deliveryPartner = (DeliveryPartner) CurrentUser.getInstance().getUser();
+        if (deliveryPartner.getAssignedOrder() == null) {
+            Order activeOrder = GlobalVariables.getInstance().orderRepository.getActiveDeliveryByPartnerId(deliveryPartner.getId());
+            deliveryPartner.setAssignedOrderFromDb(activeOrder);
+        }
         if (deliveryPartner.getIsApproved() && deliveryPartner.getAssignedOrder() == null) {
             OrderService.getInstance().addDeliveryPartner(deliveryPartner);
         }

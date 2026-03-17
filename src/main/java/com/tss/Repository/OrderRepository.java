@@ -17,4 +17,5 @@ public interface OrderRepository {
     Order getById(long orderId, Customer customer);
     Order getActiveCartByCustomerId(long customerId, Customer customer);
     List<Order> getByCustomerId(long customerId, Customer customer);
+    Order getActiveDeliveryByPartnerId(long deliveryPartnerId);
 }

@@ -1,6 +1,7 @@
 package com.tss.Repository;
 
 import com.tss.Datatype.OrderStatus;
+import com.tss.Datatype.Role;
 import com.tss.DB.DBConnection;
 import com.tss.model.Order;
 import com.tss.model.OrderItem;
@@ -237,6 +238,71 @@ public class DBOrderRepository implements OrderRepository {
         }
 
         return orders;
+    }
+
+
+    @Override
+    public Order getActiveDeliveryByPartnerId(long deliveryPartnerId) {
+        try (Connection conn = DBConnection.getConnection()) {
+            String query = """
+                    SELECT *
+                    FROM orders
+                    WHERE delivery_partner_id = ?
+                      AND order_status = 'OUT_FOR_DELIVERY'::order_status
+                    ORDER BY order_id DESC
+                    LIMIT 1
+                    """;
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setLong(1, deliveryPartnerId);
+
+            ResultSet rs = ps.executeQuery();
+            if (!rs.next()) {
+                return null;
+            }
+
+            Customer customer = loadCustomerById(conn, rs.getLong("customer_id"));
+            if (customer == null) {
+                return null;
+            }
+
+            return buildOrder(rs, customer);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    private Customer loadCustomerById(Connection conn, long customerId) throws Exception {
+        String query = """
+                SELECT au.user_id, au.name, au.created_on,
+                       c.phone, c.password, c.upi_id, c.address
+                FROM app_user au
+                JOIN customer c ON c.customer_id = au.user_id
+                WHERE au.user_id = ? AND au.is_deleted = false
+                """;
+
+        PreparedStatement ps = conn.prepareStatement(query);
+        ps.setLong(1, customerId);
+
+        ResultSet rs = ps.executeQuery();
+        if (!rs.next()) {
+            return null;
+        }
+
+        return new Customer.Builder()
+                .setId(rs.getLong("user_id"))
+                .setName(rs.getString("name"))
+                .setPhone(rs.getString("phone"))
+                .setPassword(rs.getString("password"))
+                .setRole(Role.CUSTOMER)
+                .setCreatedOn(rs.getTimestamp("created_on").toLocalDateTime())
+                .setUpiId(rs.getString("upi_id"))
+                .setAddress(rs.getString("address"))
+                .setOrderList(new ArrayList<>())
+                .setNotifications(new ArrayList<>())
+                .setCart(null)
+                .build();
     }
 
     private Order buildOrder(ResultSet rs, Customer customer) throws Exception {

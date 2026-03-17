@@ -12,6 +12,7 @@ import com.tss.model.Order;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,6 +71,41 @@ public class DeliveryPartner extends User implements NotificationObserver {
         }
     }
 
+
+    private void persistApproval(boolean approved) {
+        try (Connection conn = DBConnection.getConnection()) {
+            PreparedStatement ps = conn.prepareStatement("UPDATE delivery_partner SET is_approved = ? WHERE delivery_partner_id = ?");
+            ps.setBoolean(1, approved);
+            ps.setLong(2, this.id);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            throw new IllegalStateException("Unable to update delivery partner approval state.");
+        }
+    }
+
+    private static double getCommissionRateFromDb() {
+        try (Connection conn = DBConnection.getConnection()) {
+            PreparedStatement ps = conn.prepareStatement("SELECT value FROM app_config WHERE key = 'commission_percentage'");
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                double percent = Double.parseDouble(rs.getString("value"));
+                if (percent < 0 || percent > 100) {
+                    throw new IllegalStateException("commission_percentage in app_config must be between 0 and 100.");
+                }
+                return percent / 100.0;
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException("Unable to read commission percentage from app_config.");
+        }
+
+        return commissionPercentage;
+    }
+
+    public void setAssignedOrderFromDb(Order order) {
+        this.assignedOrder = order;
+        this.status = (order == null) ? AvailabilityStatus.AVAILABLE : AvailabilityStatus.NOT_AVAILABLE;
+    }
+
     public void assignOrder(Order order) {
         if(status == AvailabilityStatus.NOT_AVAILABLE){
             throw new DeliveryPartnerIsBusyException();
@@ -84,9 +120,11 @@ public class DeliveryPartner extends User implements NotificationObserver {
             return false;
         }
 
+        double currentCommissionRate = getCommissionRateFromDb();
+
         addNotification(new Notification(
                 "Order Completion, Commission Earned: " +
-                        (assignedOrder.getFinalAmount() * commissionPercentage) +
+                        (assignedOrder.getFinalAmount() * currentCommissionRate) +
                         ", Order Id: " + assignedOrder.getId()
         ));
 
@@ -97,7 +135,7 @@ public class DeliveryPartner extends User implements NotificationObserver {
         assignedOrder.moveToNextState(true);
         this.deliveredOrders.add(assignedOrder);
 
-        totalEarnings += (assignedOrder.getFinalAmount() * commissionPercentage);
+        totalEarnings += (assignedOrder.getFinalAmount() * currentCommissionRate);
         assignedOrder = null;
         status = AvailabilityStatus.AVAILABLE;
         persistCompletion();
@@ -119,10 +157,12 @@ public class DeliveryPartner extends User implements NotificationObserver {
         }
         if(state){
             isApproved = true;
+            persistApproval(true);
             if(status != AvailabilityStatus.NOT_AVAILABLE)
                 OrderService.getInstance().addDeliveryPartner(this);
         } else {
             isApproved = false;
+            persistApproval(false);
             OrderService.getInstance().removeDeliveryPartner(this);
         }
     }
