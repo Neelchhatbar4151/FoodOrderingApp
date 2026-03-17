@@ -1,10 +1,14 @@
 package com.tss.Repository;
 
+import com.tss.Datatype.AvailabilityStatus;
+import com.tss.Datatype.Role;
 import com.tss.DB.DBConnection;
 import com.tss.Datatype.Role;
 import com.tss.model.User.*;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,25 +20,12 @@ public class DBUserRepository implements UserRepository {
     // ================================
     @Override
     public User getUser(String phone, String password, Role role) {
-
         try (Connection conn = DBConnection.getConnection()) {
-
-            String query = """
-                SELECT * FROM users
-                WHERE phone = ? AND password = ? AND role = ?
-            """;
-
-            PreparedStatement ps = conn.prepareStatement(query);
-            ps.setString(1, phone);
-            ps.setString(2, password);
-            ps.setString(3, role.name());
-
-            ResultSet rs = ps.executeQuery();
-
-            if (!rs.next()) return null;
-
-            return buildUser(conn, rs);
-
+            return switch (role) {
+                case CUSTOMER -> getCustomerByPhonePassword(conn, phone, password);
+                case DELIVERY_PARTNER -> getDeliveryPartnerByPhonePassword(conn, phone, password);
+                case ADMIN -> getAdminByPhonePassword(conn, phone, password);
+            };
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -42,50 +33,34 @@ public class DBUserRepository implements UserRepository {
         return null;
     }
 
-    // ================================
-    // 🔹 GET ALL USERS BY ROLE
-    // ================================
     @Override
     public List<User> getAllUsersInRole(Role role) {
-
-        List<User> list = new ArrayList<>();
+        List<User> users = new ArrayList<>();
 
         try (Connection conn = DBConnection.getConnection()) {
-
-            String query = "SELECT * FROM users WHERE role = ?";
-            PreparedStatement ps = conn.prepareStatement(query);
-            ps.setString(1, role.name());
-
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                list.add(buildUser(conn, rs));
+            switch (role) {
+                case CUSTOMER -> loadAllCustomers(conn, users);
+                case DELIVERY_PARTNER -> loadAllDeliveryPartners(conn, users);
+                case ADMIN -> loadAllAdmins(conn, users);
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return list;
+        return users;
     }
 
-    // ================================
-    // 🔹 GET USER BY ID
-    // ================================
     @Override
     public User getUserById(int id) {
-
         try (Connection conn = DBConnection.getConnection()) {
 
-            String query = "SELECT * FROM users WHERE id = ?";
-            PreparedStatement ps = conn.prepareStatement(query);
-            ps.setInt(1, id);
+            User customer = getCustomerById(conn, id);
+            if (customer != null) return customer;
 
-            ResultSet rs = ps.executeQuery();
+            User partner = getDeliveryPartnerById(conn, id);
+            if (partner != null) return partner;
 
-            if (!rs.next()) return null;
-
-            return buildUser(conn, rs);
+            return getAdminById(conn, id);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -94,51 +69,33 @@ public class DBUserRepository implements UserRepository {
         return null;
     }
 
-    // ================================
-    // 🔹 ADD NEW USER (REGISTER)
-    // ================================
     @Override
     public boolean addNewUser(User user) {
-
         try (Connection conn = DBConnection.getConnection()) {
+            conn.setAutoCommit(false);
+            try {
+                if (isPhoneExistsForRole(conn, user.getPhone(), user.getRole())) {
+                    conn.rollback();
+                    return false;
+                }
 
-            // ❗ check duplicate phone in same role
-            String checkQuery = """
-                SELECT 1 FROM users WHERE phone = ? AND role = ?
-            """;
+                long userId = insertAppUser(conn, user);
+                if (userId == -1) {
+                    conn.rollback();
+                    return false;
+                }
 
-            PreparedStatement checkPs = conn.prepareStatement(checkQuery);
-            checkPs.setString(1, user.getPhone());
-            checkPs.setString(2, user.getRole().name());
+                user.setId(userId);
+                insertRoleSpecific(conn, user);
 
-            ResultSet checkRs = checkPs.executeQuery();
-            if (checkRs.next()) return false;
-
-            // 🔹 insert into users
-            String insertUser = """
-                INSERT INTO users(name, phone, password, role, created_on)
-                VALUES (?, ?, ?, ?, ?)
-                RETURNING id
-            """;
-
-            PreparedStatement ps = conn.prepareStatement(insertUser);
-            ps.setString(1, user.getName());
-            ps.setString(2, user.getPhone());
-            ps.setString(3, user.getPassword());
-            ps.setString(4, user.getRole().name());
-            ps.setObject(5, user.getCreatedOn());
-
-            ResultSet rs = ps.executeQuery();
-            rs.next();
-            int generatedId = rs.getInt("id");
-
-            user.setId(generatedId);
-
-            // 🔥 role specific insert
-            insertRoleSpecific(conn, user);
-
-            return true;
-
+                conn.commit();
+                return true;
+            } catch (Exception e) {
+                conn.rollback();
+                throw e;
+            } finally {
+                conn.setAutoCommit(true);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -146,118 +103,288 @@ public class DBUserRepository implements UserRepository {
         return false;
     }
 
-    // ================================
-    // 🔥 HELPER: BUILD USER
-    // ================================
-    private User buildUser(Connection conn, ResultSet rs) throws Exception {
+    private boolean isPhoneExistsForRole(Connection conn, String phone, Role role) throws Exception {
+        String table = switch (role) {
+            case CUSTOMER -> "customer";
+            case DELIVERY_PARTNER -> "delivery_partner";
+            case ADMIN -> "admin";
+        };
 
-        Role role = Role.valueOf(rs.getString("role"));
-        int id = rs.getInt("id");
-
-        switch (role) {
-
-            case CUSTOMER -> {
-                return buildCustomer(conn, rs, id);
-            }
-
-            case DELIVERY_PARTNER -> {
-                return buildDeliveryPartner(conn, rs, id);
-            }
-
-            case ADMIN -> {
-                return new Admin(
-                        rs.getString("name"),
-                        rs.getString("phone"),
-                        rs.getString("password")
-                );
-            }
-        }
-
-        return null;
+        String query = "SELECT 1 FROM " + table + " WHERE phone = ?";
+        PreparedStatement ps = conn.prepareStatement(query);
+        ps.setString(1, phone);
+        ResultSet rs = ps.executeQuery();
+        return rs.next();
     }
 
-    // ================================
-    // 🔹 CUSTOMER BUILDER
-    // ================================
-    private Customer buildCustomer(Connection conn, ResultSet userRs, int id) throws Exception {
+    private long insertAppUser(Connection conn, User user) throws Exception {
+        String query = """
+                INSERT INTO app_user(name, created_on, is_deleted)
+                VALUES (?, ?, false)
+                RETURNING user_id
+                """;
 
-        String query = "SELECT * FROM customers WHERE id = ?";
         PreparedStatement ps = conn.prepareStatement(query);
-        ps.setInt(1, id);
+        ps.setString(1, user.getName());
+        ps.setObject(2, user.getCreatedOn());
 
         ResultSet rs = ps.executeQuery();
-        rs.next();
+        if (rs.next()) {
+            return rs.getLong("user_id");
+        }
 
+        return -1;
+    }
+
+    private void insertRoleSpecific(Connection conn, User user) throws Exception {
+        if (user instanceof Customer c) {
+            String query = """
+                    INSERT INTO customer(customer_id, phone, password, upi_id, address)
+                    VALUES (?, ?, ?, ?, ?)
+                    """;
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setLong(1, c.getId());
+            ps.setString(2, c.getPhone());
+            ps.setString(3, c.getPassword());
+            ps.setString(4, c.getUpiId());
+            ps.setString(5, c.getAddress());
+            ps.executeUpdate();
+            return;
+        }
+
+        if (user instanceof DeliveryPartner d) {
+            String query = """
+                    INSERT INTO delivery_partner(delivery_partner_id, phone, password, is_available, total_earnings, is_approved)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    """;
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setLong(1, d.getId());
+            ps.setString(2, d.getPhone());
+            ps.setString(3, d.getPassword());
+            ps.setBoolean(4, true);
+            ps.setDouble(5, d.getTotalEarnings());
+            ps.setBoolean(6, d.getIsApproved());
+            ps.executeUpdate();
+            return;
+        }
+
+        if (user instanceof Admin a) {
+            String query = """
+                    INSERT INTO admin(admin_id, phone, password)
+                    VALUES (?, ?, ?)
+                    """;
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setLong(1, a.getId());
+            ps.setString(2, a.getPhone());
+            ps.setString(3, a.getPassword());
+            ps.executeUpdate();
+        }
+    }
+
+    private User getCustomerByPhonePassword(Connection conn, String phone, String password) throws Exception {
+        String query = """
+                SELECT au.user_id, au.name, au.created_on,
+                       c.phone, c.password, c.upi_id, c.address
+                FROM app_user au
+                JOIN customer c ON c.customer_id = au.user_id
+                WHERE c.phone = ? AND c.password = ? AND au.is_deleted = false
+                """;
+
+        PreparedStatement ps = conn.prepareStatement(query);
+        ps.setString(1, phone);
+        ps.setString(2, password);
+
+        ResultSet rs = ps.executeQuery();
+        if (!rs.next()) return null;
+
+        return buildCustomer(rs);
+    }
+
+    private User getDeliveryPartnerByPhonePassword(Connection conn, String phone, String password) throws Exception {
+        String query = """
+                SELECT au.user_id, au.name, au.created_on,
+                       d.phone, d.password, d.is_available, d.total_earnings, d.is_approved
+                FROM app_user au
+                JOIN delivery_partner d ON d.delivery_partner_id = au.user_id
+                WHERE d.phone = ? AND d.password = ? AND au.is_deleted = false
+                """;
+
+        PreparedStatement ps = conn.prepareStatement(query);
+        ps.setString(1, phone);
+        ps.setString(2, password);
+
+        ResultSet rs = ps.executeQuery();
+        if (!rs.next()) return null;
+
+        return buildDeliveryPartner(rs);
+    }
+
+    private User getAdminByPhonePassword(Connection conn, String phone, String password) throws Exception {
+        String query = """
+                SELECT au.user_id, au.name, au.created_on,
+                       a.phone, a.password
+                FROM app_user au
+                JOIN admin a ON a.admin_id = au.user_id
+                WHERE a.phone = ? AND a.password = ? AND au.is_deleted = false
+                """;
+
+        PreparedStatement ps = conn.prepareStatement(query);
+        ps.setString(1, phone);
+        ps.setString(2, password);
+
+        ResultSet rs = ps.executeQuery();
+        if (!rs.next()) return null;
+
+        return buildAdmin(rs);
+    }
+
+    private User getCustomerById(Connection conn, long id) throws Exception {
+        String query = """
+                SELECT au.user_id, au.name, au.created_on,
+                       c.phone, c.password, c.upi_id, c.address
+                FROM app_user au
+                JOIN customer c ON c.customer_id = au.user_id
+                WHERE au.user_id = ? AND au.is_deleted = false
+                """;
+
+        PreparedStatement ps = conn.prepareStatement(query);
+        ps.setLong(1, id);
+
+        ResultSet rs = ps.executeQuery();
+        if (!rs.next()) return null;
+
+        return buildCustomer(rs);
+    }
+
+    private User getDeliveryPartnerById(Connection conn, long id) throws Exception {
+        String query = """
+                SELECT au.user_id, au.name, au.created_on,
+                       d.phone, d.password, d.is_available, d.total_earnings, d.is_approved
+                FROM app_user au
+                JOIN delivery_partner d ON d.delivery_partner_id = au.user_id
+                WHERE au.user_id = ? AND au.is_deleted = false
+                """;
+
+        PreparedStatement ps = conn.prepareStatement(query);
+        ps.setLong(1, id);
+
+        ResultSet rs = ps.executeQuery();
+        if (!rs.next()) return null;
+
+        return buildDeliveryPartner(rs);
+    }
+
+    private User getAdminById(Connection conn, long id) throws Exception {
+        String query = """
+                SELECT au.user_id, au.name, au.created_on,
+                       a.phone, a.password
+                FROM app_user au
+                JOIN admin a ON a.admin_id = au.user_id
+                WHERE au.user_id = ? AND au.is_deleted = false
+                """;
+
+        PreparedStatement ps = conn.prepareStatement(query);
+        ps.setLong(1, id);
+
+        ResultSet rs = ps.executeQuery();
+        if (!rs.next()) return null;
+
+        return buildAdmin(rs);
+    }
+
+    private void loadAllCustomers(Connection conn, List<User> users) throws Exception {
+        String query = """
+                SELECT au.user_id, au.name, au.created_on,
+                       c.phone, c.password, c.upi_id, c.address
+                FROM app_user au
+                JOIN customer c ON c.customer_id = au.user_id
+                WHERE au.is_deleted = false
+                ORDER BY au.user_id
+                """;
+
+        PreparedStatement ps = conn.prepareStatement(query);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            users.add(buildCustomer(rs));
+        }
+    }
+
+    private void loadAllDeliveryPartners(Connection conn, List<User> users) throws Exception {
+        String query = """
+                SELECT au.user_id, au.name, au.created_on,
+                       d.phone, d.password, d.is_available, d.total_earnings, d.is_approved
+                FROM app_user au
+                JOIN delivery_partner d ON d.delivery_partner_id = au.user_id
+                WHERE au.is_deleted = false
+                ORDER BY au.user_id
+                """;
+
+        PreparedStatement ps = conn.prepareStatement(query);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            users.add(buildDeliveryPartner(rs));
+        }
+    }
+
+    private void loadAllAdmins(Connection conn, List<User> users) throws Exception {
+        String query = """
+                SELECT au.user_id, au.name, au.created_on,
+                       a.phone, a.password
+                FROM app_user au
+                JOIN admin a ON a.admin_id = au.user_id
+                WHERE au.is_deleted = false
+                ORDER BY au.user_id
+                """;
+
+        PreparedStatement ps = conn.prepareStatement(query);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            users.add(buildAdmin(rs));
+        }
+    }
+
+    private Customer buildCustomer(ResultSet rs) throws Exception {
         return new Customer.Builder()
-                .setId(id)
-                .setName(userRs.getString("name"))
-                .setPhone(userRs.getString("phone"))
-                .setPassword(userRs.getString("password"))
+                .setId(rs.getLong("user_id"))
+                .setName(rs.getString("name"))
+                .setPhone(rs.getString("phone"))
+                .setPassword(rs.getString("password"))
                 .setRole(Role.CUSTOMER)
-                .setCreatedOn(userRs.getTimestamp("created_on").toLocalDateTime())
-
+                .setCreatedOn(rs.getTimestamp("created_on").toLocalDateTime())
                 .setUpiId(rs.getString("upi_id"))
                 .setAddress(rs.getString("address"))
-
-                // ❗ lazy loading
                 .setOrderList(new ArrayList<>())
                 .setNotifications(new ArrayList<>())
                 .setCart(null)
-
                 .build();
     }
 
-    // ================================
-    // 🔹 DELIVERY PARTNER BUILDER
-    // ================================
-    private DeliveryPartner buildDeliveryPartner(Connection conn, ResultSet userRs, int id) throws Exception {
-
-        String query = "SELECT * FROM delivery_partners WHERE id = ?";
-        PreparedStatement ps = conn.prepareStatement(query);
-        ps.setInt(1, id);
-
-        ResultSet rs = ps.executeQuery();
-        rs.next();
-
-        return new DeliveryPartner(
-                userRs.getString("name"),
-                userRs.getString("phone"),
-                userRs.getString("password")
-        );
+    private DeliveryPartner buildDeliveryPartner(ResultSet rs) throws Exception {
+        return new DeliveryPartner.Builder()
+                .setId(rs.getLong("user_id"))
+                .setName(rs.getString("name"))
+                .setPhone(rs.getString("phone"))
+                .setPassword(rs.getString("password"))
+                .setRole(Role.DELIVERY_PARTNER)
+                .setCreatedOn(rs.getTimestamp("created_on").toLocalDateTime())
+                .setStatus(rs.getBoolean("is_available") ? AvailabilityStatus.AVAILABLE : AvailabilityStatus.NOT_AVAILABLE)
+                .setTotalEarnings(rs.getDouble("total_earnings"))
+                .setIsApproved(rs.getBoolean("is_approved"))
+                .setDeliveredOrders(new ArrayList<>())
+                .setNotifications(new ArrayList<>())
+                .build();
     }
 
-    // ================================
-    // 🔹 INSERT ROLE SPECIFIC
-    // ================================
-    private void insertRoleSpecific(Connection conn, User user) throws Exception {
-
-        if (user instanceof Customer c) {
-
-            String query = """
-                INSERT INTO customers(id, upi_id, address)
-                VALUES (?, ?, ?)
-            """;
-
-            PreparedStatement ps = conn.prepareStatement(query);
-            ps.setLong(1, c.getId());
-            ps.setString(2, c.getUpiId());
-            ps.setString(3, c.getAddress());
-            ps.executeUpdate();
-        }
-
-        else if (user instanceof DeliveryPartner d) {
-
-            String query = """
-                INSERT INTO delivery_partners(id)
-                VALUES (?)
-            """;
-
-            PreparedStatement ps = conn.prepareStatement(query);
-            ps.setLong(1, d.getId());
-            ps.executeUpdate();
-        }
-
-        // Admin → nothing extra
+    private Admin buildAdmin(ResultSet rs) throws Exception {
+        return new Admin.Builder()
+                .setId(rs.getLong("user_id"))
+                .setName(rs.getString("name"))
+                .setPhone(rs.getString("phone"))
+                .setPassword(rs.getString("password"))
+                .setRole(Role.ADMIN)
+                .setCreatedOn(rs.getTimestamp("created_on").toLocalDateTime())
+                .setNotifications(new ArrayList<>())
+                .build();
     }
 
     public static class Initiator{
