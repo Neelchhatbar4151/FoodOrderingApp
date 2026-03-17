@@ -1,7 +1,7 @@
 package com.tss.Repository;
 
-import com.tss.Datatype.Role;
 import com.tss.DB.DBConnection;
+import com.tss.Datatype.Role;
 import com.tss.model.User.*;
 
 import java.sql.*;
@@ -10,6 +10,7 @@ import java.util.List;
 
 public class DBUserRepository implements UserRepository {
 
+    private DBUserRepository(){}
     // ================================
     // 🔹 GET USER (LOGIN)
     // ================================
@@ -257,5 +258,14 @@ public class DBUserRepository implements UserRepository {
         }
 
         // Admin → nothing extra
+    }
+
+    public static class Initiator{
+        private static final DBUserRepository instance = new DBUserRepository();
+
+    }
+
+    public static DBUserRepository getInstance(){
+        return DBUserRepository.Initiator.instance;
     }
 }
