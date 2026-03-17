@@ -174,12 +174,20 @@ public class Order {
     public String toString() {
         DateTimeFormatter formatter =
                 DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");
+        String paymentName = "-";
+        String transactionId = "-";
+        if (payment != null) {
+            paymentName = payment.getName();
+            if (payment.getTransactionReferenceId() != null) {
+                transactionId = payment.getTransactionReferenceId();
+            }
+        }
 
         return String.format(
                 "%-8d %-15s %-18s %-25s %-12.2f %-10.2f %-12.2f %-30s %-15s %-20s %-25s",
                 id,
-                (payment == null?"-":payment.getName()),
-                (Objects.requireNonNull(payment).getTransactionReferenceId() == null?"-":payment.getTransactionReferenceId()),
+                paymentName,
+                transactionId,
                 (deliveryPartner != null?
                 deliveryPartner.getName() + " (" + deliveryPartner.getPhone() + ")":
                 "Not Assigned Yet"),
@@ -198,7 +206,6 @@ public class Order {
         return discountDescription;
     }
 
-    //Builder
     public static class Builder {
 
         private long id;
@@ -253,7 +260,6 @@ public class Order {
         public Order build() {
             Order order = new Order(customer);
 
-            // Override all fields
             order.id = this.id;
 
             order.items.clear();

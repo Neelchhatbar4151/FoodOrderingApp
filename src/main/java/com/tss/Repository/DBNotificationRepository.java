@@ -7,14 +7,10 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-// Singleton
 public class DBNotificationRepository implements NotificationRepository {
 
     private DBNotificationRepository() {}
 
-    // ================================
-    // 🔹 ADD PERSONAL NOTIFICATION
-    // ================================
     @Override
     public void addForUser(long userId, String description) {
 
@@ -36,9 +32,6 @@ public class DBNotificationRepository implements NotificationRepository {
         }
     }
 
-    // ================================
-    // 🔹 BROADCAST TO ALL
-    // ================================
     @Override
     public void broadcastToAll(String description) {
 
@@ -59,9 +52,6 @@ public class DBNotificationRepository implements NotificationRepository {
         }
     }
 
-    // ================================
-    // 🔹 BROADCAST TO ROLE
-    // ================================
     @Override
     public void broadcastToRole(String description, String role) {
 
@@ -74,7 +64,7 @@ public class DBNotificationRepository implements NotificationRepository {
 
             PreparedStatement ps = conn.prepareStatement(query);
             ps.setString(1, description);
-            ps.setString(2, role); // must match enum
+            ps.setString(2, role);
 
             ps.executeUpdate();
 
@@ -83,9 +73,6 @@ public class DBNotificationRepository implements NotificationRepository {
         }
     }
 
-    // ================================
-    // 🔥 GET ALL RELEVANT NOTIFICATIONS
-    // ================================
     @Override
     public List<Notification> getNotificationsForUser(long userId, String role) {
 
@@ -119,9 +106,6 @@ public class DBNotificationRepository implements NotificationRepository {
         return list;
     }
 
-    // ================================
-    // 🔹 GET BY ID
-    // ================================
     @Override
     public Notification getById(long notificationId) {
 
@@ -147,9 +131,6 @@ public class DBNotificationRepository implements NotificationRepository {
         return null;
     }
 
-    // ================================
-    // 🔹 DELETE
-    // ================================
     @Override
     public boolean deleteNotification(long notificationId) {
 
@@ -169,9 +150,6 @@ public class DBNotificationRepository implements NotificationRepository {
         return false;
     }
 
-    // ================================
-    // 🔥 HELPER
-    // ================================
     private Notification buildNotification(ResultSet rs) throws Exception {
 
         return new Notification(
@@ -181,9 +159,6 @@ public class DBNotificationRepository implements NotificationRepository {
         );
     }
 
-    // ================================
-    // 🔹 SINGLETON
-    // ================================
     public static class Initiator {
         private static final DBNotificationRepository instance =
                 new DBNotificationRepository();

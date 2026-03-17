@@ -97,25 +97,30 @@ public class CustomerService {
         }
 
         customer.setNewCart();
-        //Created -> Confirmed
-        cart.moveToNextState(true);
-
-        performPayment(cart);
-
-        if(cart.getStatus() == OrderStatus.CANCELLED){
-            return ;
+        if (!cart.moveToNextState(true)) {
+            throw new IllegalStateException("Unable to confirm order.");
         }
 
-        //No Preparation Time For Now
-        //Preparing -> Waiting
-        cart.moveToNextState(true);
+        boolean paymentCompleted = performPayment(cart);
+
+        if(!paymentCompleted || cart.getStatus() == OrderStatus.CANCELLED){
+            return;
+        }
+
+        if (!cart.moveToNextState(true)) {
+            throw new IllegalStateException("Unable to prepare order.");
+        }
+
+        if (!cart.moveToNextState(true)) {
+            throw new IllegalStateException("Unable to queue order for delivery partner.");
+        }
 
         OrderService.getInstance().addOrder(cart);
         success("Your Order is Now in Queue...");
         success("You'll get notified once a delivery partner assigns to your order...");
     }
 
-    private void performPayment(Order order){
+    private boolean performPayment(Order order){
         info("Order Invoice");
         Display.displayOrder(order);
 
@@ -128,21 +133,18 @@ public class CustomerService {
                     case 1 -> new UPI(order).pay();
                     case 2 -> new CashOnDelivery(order).pay();
                     case 3 -> {
-                        //CANCELLED
                         order.moveToNextState(false);
                         success("Order Successfully Cancelled !");
+                        return false;
                     }
                     default -> throw new IllegalArgumentException("Invalid Option Selected.");
                 }
-                break;
+                return true;
             }
             catch(Exception e){
                 exception(e);
             }
         }
-
-        //Confirmed -> Preparing
-        order.moveToNextState(true);
     }
 
     private void showOrderHistory(){
