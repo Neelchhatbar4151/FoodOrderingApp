@@ -9,7 +9,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-//Singleton
 public class DBFoodItemRepository implements FoodItemRepository {
 
     private DBFoodItemRepository(){}
@@ -22,9 +21,6 @@ public class DBFoodItemRepository implements FoodItemRepository {
         return Initiator.instance;
     }
 
-    // ================================
-    // 🔹 ADD FOOD ITEM
-    // ================================
     @Override
     public void addFoodItem(FoodItem item) {
 
@@ -52,9 +48,6 @@ public class DBFoodItemRepository implements FoodItemRepository {
         }
     }
 
-    // ================================
-    // 🔹 REMOVE FOOD ITEM
-    // ================================
     @Override
     public boolean removeFoodItem(int id) {
 
@@ -73,9 +66,6 @@ public class DBFoodItemRepository implements FoodItemRepository {
         return false;
     }
 
-    // ================================
-    // 🔹 GET FOOD ITEM BY ID
-    // ================================
     @Override
     public FoodItem getFoodItemById(int id) {
 
@@ -104,9 +94,6 @@ public class DBFoodItemRepository implements FoodItemRepository {
         return null;
     }
 
-    // ================================
-    // 🔹 GET ALL FOOD ITEMS
-    // ================================
     @Override
     public List<FoodItem> getAllFoodItems() {
 
@@ -134,9 +121,6 @@ public class DBFoodItemRepository implements FoodItemRepository {
         return list;
     }
 
-    // ================================
-    // 🔹 UPDATE AVAILABILITY
-    // ================================
     @Override
     public boolean setFoodAvailability(int id, AvailabilityStatus state) {
 
@@ -161,9 +145,6 @@ public class DBFoodItemRepository implements FoodItemRepository {
         return false;
     }
 
-    // ================================
-    // 🔹 CATEGORY METHODS
-    // ================================
     @Override
     public void addFoodCategory(Category category) {
 
@@ -185,14 +166,12 @@ public class DBFoodItemRepository implements FoodItemRepository {
 
         try (Connection conn = DBConnection.getConnection()) {
 
-            // 🔹 set category_id null for food items
             PreparedStatement ps1 = conn.prepareStatement(
                     "UPDATE food_items SET category_id = NULL WHERE category_id = ?"
             );
             ps1.setInt(1, id);
             ps1.executeUpdate();
 
-            // 🔹 delete category
             PreparedStatement ps2 = conn.prepareStatement(
                     "DELETE FROM categories WHERE category_id = ?"
             );
@@ -257,9 +236,6 @@ public class DBFoodItemRepository implements FoodItemRepository {
         return list;
     }
 
-    // ================================
-    // 🔥 HELPER
-    // ================================
     private FoodItem buildFoodItem(ResultSet rs) throws Exception {
 
         Category category = null;

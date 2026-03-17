@@ -95,7 +95,6 @@ public class Display {
     }
 
     public static void displayCustomerMenu() {
-        //Cancel Order is Remaining
         info("""
             ================== CUSTOMER MENU ==================
             1. Add Food Item To Cart
@@ -112,7 +111,6 @@ public class Display {
     }
 
     public static void displayDeliveryPartnerMenu() {
-//        1. Set Availability Status (NS) Remaining
         info("""
             ================== Delivery Partner MENU ==================
             1. Complete Order Delivery

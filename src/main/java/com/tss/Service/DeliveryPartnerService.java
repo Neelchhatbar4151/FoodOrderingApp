@@ -22,6 +22,9 @@ public class DeliveryPartnerService {
 
     public DeliveryPartnerService(){
         deliveryPartner = (DeliveryPartner) CurrentUser.getInstance().getUser();
+        if (deliveryPartner.getIsApproved() && deliveryPartner.getAssignedOrder() == null) {
+            OrderService.getInstance().addDeliveryPartner(deliveryPartner);
+        }
     }
 
     private void showDeliveredOrders(){

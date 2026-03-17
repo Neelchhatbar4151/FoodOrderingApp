@@ -3,7 +3,6 @@ package com.tss.model;
 import com.tss.Datatype.AvailabilityStatus;
 import com.tss.Utils.GlobalVariables;
 
-//FoodItem With Builder Pattern
 public class FoodItem {
     public final int id;
     public final String name, description;
@@ -51,12 +50,10 @@ public class FoodItem {
 
         private int id;
 
-        // Required fields
         private final String name;
         private final double price;
         private final Category category;
 
-        // Optional fields
         private String description = "";
         private AvailabilityStatus availability = AvailabilityStatus.AVAILABLE;
         private int preparationTime = 0;

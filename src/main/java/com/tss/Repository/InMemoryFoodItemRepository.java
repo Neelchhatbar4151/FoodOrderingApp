@@ -7,7 +7,6 @@ import com.tss.model.FoodItem;
 import java.io.*;
 import java.util.*;
 
-//Singleton
 public class InMemoryFoodItemRepository implements FoodItemRepository{
 
     private final Map<Integer, FoodItem> foodItems;

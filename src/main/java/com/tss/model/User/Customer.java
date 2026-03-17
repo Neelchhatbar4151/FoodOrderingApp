@@ -120,7 +120,6 @@ public class Customer extends User implements NotificationObserver {
                 '}';
     }
 
-    //Only Getters, Setters Below.
     public String getUpiId() {
         return upiId;
     }
@@ -154,10 +153,8 @@ public class Customer extends User implements NotificationObserver {
     }
 
 
-    // ✅ FULL BUILDER
     public static class Builder {
 
-        // User fields
         private long id;
         private String name;
         private String phone;
@@ -167,7 +164,6 @@ public class Customer extends User implements NotificationObserver {
         private Role role;
         private LocalDateTime createdOn;
 
-        // Customer fields
         private List<Order> orderList;
         private String upiId;
         private Order cart;

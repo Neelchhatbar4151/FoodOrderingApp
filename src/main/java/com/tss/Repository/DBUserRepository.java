@@ -3,7 +3,6 @@ package com.tss.Repository;
 import com.tss.Datatype.AvailabilityStatus;
 import com.tss.Datatype.Role;
 import com.tss.DB.DBConnection;
-import com.tss.Datatype.Role;
 import com.tss.model.User.*;
 
 import java.sql.Connection;
@@ -15,9 +14,6 @@ import java.util.List;
 public class DBUserRepository implements UserRepository {
 
     private DBUserRepository(){}
-    // ================================
-    // 🔹 GET USER (LOGIN)
-    // ================================
     @Override
     public User getUser(String phone, String password, Role role) {
         try (Connection conn = DBConnection.getConnection()) {

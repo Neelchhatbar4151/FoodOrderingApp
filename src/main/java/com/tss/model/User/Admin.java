@@ -17,7 +17,6 @@ public class Admin extends User {
                 role, phone, name, createdOn);
     }
 
-    // ✅ FULL BUILDER
     public static class Builder {
 
         private long id;

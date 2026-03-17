@@ -130,7 +130,20 @@ public class DBOrderRepository implements OrderRepository {
                 ps.setLong(1, deliveryPartnerId);
             }
             ps.setLong(2, orderId);
-            return ps.executeUpdate() > 0;
+            boolean updated = ps.executeUpdate() > 0;
+            if (!updated || deliveryPartnerId == null) {
+                return updated;
+            }
+
+            PreparedStatement mappingPs = conn.prepareStatement("INSERT INTO delivery_assignment(order_id, delivery_partner_id) VALUES (?, ?) ON CONFLICT DO NOTHING");
+            mappingPs.setLong(1, orderId);
+            mappingPs.setLong(2, deliveryPartnerId);
+            mappingPs.executeUpdate();
+
+            PreparedStatement partnerPs = conn.prepareStatement("UPDATE delivery_partner SET is_available = false WHERE delivery_partner_id = ?");
+            partnerPs.setLong(1, deliveryPartnerId);
+            partnerPs.executeUpdate();
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
         }

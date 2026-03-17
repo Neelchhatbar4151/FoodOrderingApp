@@ -2,7 +2,6 @@ package com.tss.model;
 
 import com.tss.model.User.User;
 
-//Singleton Class
 public class CurrentUser {
     private User user;
 
