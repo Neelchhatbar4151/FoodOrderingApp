@@ -3,6 +3,10 @@ package com.tss.model.User;
 import com.tss.Datatype.OrderStatus;
 import com.tss.Datatype.Role;
 import com.tss.Observer.NotificationObserver;
+import com.tss.Repository.DBNotificationRepository;
+import com.tss.Repository.DBOrderRepository;
+import com.tss.Repository.NotificationRepository;
+import com.tss.Repository.OrderRepository;
 import com.tss.Utils.GlobalVariables;
 import com.tss.model.FoodItem;
 import com.tss.model.Notification;
@@ -14,6 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Customer extends User implements NotificationObserver {
+
+    private static final OrderRepository orderRepository = DBOrderRepository.getInstance();
+    private static final NotificationRepository notificationRepository = DBNotificationRepository.getInstance();
 
     private List<Order> orderList;
     private String upiId;
@@ -40,7 +47,13 @@ public class Customer extends User implements NotificationObserver {
     }
 
     public List<Order> getOrderHistory(){
-        return new ArrayList<>(orderList);
+        List<Order> persistedOrders = orderRepository.getByCustomerId(this.id, this);
+
+        if(persistedOrders.isEmpty()) {
+            return new ArrayList<>(orderList);
+        }
+
+        return persistedOrders;
     }
 
     public void setNewCart(){
@@ -50,12 +63,45 @@ public class Customer extends User implements NotificationObserver {
 
     public List<Order> getOnGoingOrders(){
         List<Order> onGoingOrders = new ArrayList<>();
-        for(int i=orderList.size()-1;i>=0;i--){
-            if(orderList.get(i).getStatus() != OrderStatus.CANCELLED && orderList.get(i).getStatus() != OrderStatus.DELIVERED){
-                onGoingOrders.add(orderList.get(i));
+        List<Order> allOrders = getOrderHistory();
+        for(int i=allOrders.size()-1;i>=0;i--){
+            if(allOrders.get(i).getStatus() != OrderStatus.CANCELLED && allOrders.get(i).getStatus() != OrderStatus.DELIVERED){
+                onGoingOrders.add(allOrders.get(i));
             }
         }
         return onGoingOrders;
+    }
+
+    public List<Notification> getNotifications(){
+        List<Notification> persistedNotifications = notificationRepository.getNotificationsForUser(this.id, this.role.name());
+
+        if(persistedNotifications.isEmpty()) {
+            return new ArrayList<>(notifications);
+        }
+
+        this.notifications = new ArrayList<>(persistedNotifications);
+
+        if(indexOfNewNotification > notifications.size()) {
+            indexOfNewNotification = notifications.size();
+        }
+
+        return new ArrayList<>(notifications);
+    }
+
+    @Override
+    public List<Notification> getOldNotifications() {
+        List<Notification> allNotifications = getNotifications();
+        long safeIndex = Math.min(indexOfNewNotification, allNotifications.size());
+        return new ArrayList<>(allNotifications.subList(0, (int)safeIndex));
+    }
+
+    @Override
+    public List<Notification> getNewNotifications(){
+        List<Notification> allNotifications = getNotifications();
+        long safeIndex = Math.min(indexOfNewNotification, allNotifications.size());
+        List<Notification> newNotifications = new ArrayList<>(allNotifications.subList((int)safeIndex, allNotifications.size()));
+        indexOfNewNotification = allNotifications.size();
+        return newNotifications;
     }
 
     @Override
